@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Galeria de Filmes</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #191919;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    a.card {
+      display: block;
+      background: #CEC596;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: contain;
+      background-color: #000;
+    }
+
+    .content {
+      padding: 15px;
+    }
+
+    .title {
+      font-size: 1rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #056F57;
+    }
+
+    .stars {
+      margin: 5px 0;
+    }
+
+    .stars span {
+      font-size: 1.2rem;
+      color: gray;
+      cursor: pointer;
+    }
+
+    .stars span.active {
+      color: gold;
+    }
+
+    .info {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .pagination {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .pagination button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      border: none;
+      background-color: #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background-color: #999;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="cardContainer" class="grid"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <script>
+    // Lista de filmes - você pode adicionar, editar ou remover
+    const filmes = [
+      {
+        titulo: "Alice no País das Maravilhas",
+        imagem: "https://br.web.img2.acsta.net/medias/nmedia/18/87/31/00/19874174.jpg",
+        genero: "Infantil/Aventura",
+        duracao: "1h 48min",
+        nota: 5,
+        link: "https://www.notion.so/Alice-no-Pais-das-Maravilhas-filme-1e8af0392b1680a7a100c2181217a6a2?pvs=4"
+      },
+      {
+        titulo: "Blade Runner 2049",
+        imagem: "https://br.web.img3.acsta.net/pictures/17/08/25/11/58/463146.jpg",
+        genero: "Ficção científica/Ação",
+        duracao: "2h 43min",
+        nota: 4,
+        link: "https://www.notion.so/Blade-Runner-2049-1e8af0392b1680f39a31d9a27b5bad6c?pvs=4"
+      },
+      {
+        titulo: "Barbie",
+        imagem: "https://via.placeholder.com/300x200?text=Barbie",
+        genero: "Comédia",
+        duracao: "1h 54min",
+        nota: 3,
+        link: "https://www.imdb.com/title/tt1517268/"
+      },
+      // Adicione mais objetos aqui conforme necessário
+    ];
+
+    const cardsPorPagina = 16;
+    let paginaAtual = 1;
+
+    function renderizarCards() {
+      const inicio = (paginaAtual - 1) * cardsPorPagina;
+      const fim = inicio + cardsPorPagina;
+      const filmesPagina = filmes.slice(inicio, fim);
+
+      const container = document.getElementById("cardContainer");
+      container.innerHTML = "";
+
+      filmesPagina.forEach((filme, index) => {
+        const card = document.createElement("a");
+        card.className = "card";
+        card.href = filme.link;
+        card.target = "_blank";
+        card.rel = "noopener noreferrer";
+
+        // Conteúdo do card
+        card.innerHTML = `
+          <img src="${filme.imagem}" alt="${filme.titulo}">
+          <div class="content">
+            <div class="title">${filme.titulo}</div>
+            <div class="stars" data-index="${index + inicio}">
+              ${[1,2,3,4,5].map(i => 
+                `<span class="${i <= filme.nota ? "active" : ""}" data-star="${i}">&#9733;</span>`
+              ).join('')}
+            </div>
+            <div class="info">${filme.genero} • ${filme.duracao}</div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      adicionarListenersEstrelas();
+      renderizarPaginacao();
+    }
+
+    function adicionarListenersEstrelas() {
+      document.querySelectorAll(".stars").forEach((starsContainer) => {
+        const index = starsContainer.dataset.index;
+
+        starsContainer.querySelectorAll("span").forEach((estrela) => {
+          estrela.addEventListener("click", (e) => {
+            e.preventDefault(); // Impede o redirecionamento do link
+            e.stopPropagation(); // Impede a propagação do clique para o <a>
+            const rating = parseInt(estrela.dataset.star);
+            filmes[index].nota = rating;
+            renderizarCards(); // Re-renderiza para atualizar visualmente
+          });
+        });
+      });
+    }
+
+    function renderizarPaginacao() {
+      const totalPaginas = Math.ceil(filmes.length / cardsPorPagina);
+      const pagContainer = document.getElementById("pagination");
+      pagContainer.innerHTML = "";
+
+      for (let i = 1; i <= totalPaginas; i++) {
+        const botao = document.createElement("button");
+        botao.innerText = i;
+        if (i === paginaAtual) botao.classList.add("active");
+        botao.addEventListener("click", () => {
+          paginaAtual = i;
+          renderizarCards();
+        });
+        pagContainer.appendChild(botao);
+      }
+    }
+
+    // Inicializa
+    renderizarCards();
+  </script>
+</body>
+</html>
