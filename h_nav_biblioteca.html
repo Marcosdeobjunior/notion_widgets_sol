@@ -32,7 +32,7 @@
 		}
 
 		.navMenu a {
-			color: #272727;
+			color: #0A725C;
 			text-decoration: none;
 			text-transform: uppercase;
 			display: inline-block;
@@ -40,11 +40,11 @@
 		}
 
 		.background {
-			background-color: #f3eec3;
+			background-color: #CCC191;
 		}
 
 		.border {
-			border: 1px solid #849D7F;
+			border: 1px solid #0A725C;
 
 		}
 
@@ -58,10 +58,10 @@
 <body>
 
 	<nav class="navMenu  border background">
-		<a id="home" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-house"></i> Home</a>
-		<a id="tarefas" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-list-check"></i> Tarefas</a>
-		<a id="pessoal" onclick="navigate(this.id)" href="#"> <i class="fa-regular fa-user"></i> Pessoal</a>
-		<a id="database" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-server"></i> DataBase</a>
+		<a id="livraria" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-book-open"></i> Livraria</a>
+		<a id="filmes" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-film"></i> Cinema</a>
+		<a id="series" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-tv"></i> Séries</a>
+		
 	</nav>
 
 
@@ -75,15 +75,15 @@
 
 		function navigate(id) {
 
-			if (id == 'home')
-				window.open("https://www.notion.so/Sol-de-S-ter-1ddaf0392b1680f7b4bac7ebe0beac5d?pvs=4", '_blank').focus();
-			else if (id == 'tarefas')
-				window.open("https://www.notion.so/Tarefas-1e7af0392b1680abbae1d383c60535aa?pvs=4", '_blank').focus();
-			else if (id == 'pessoal')
-				window.open("https://www.notion.so/Pessoal-1e7af0392b168031a3e1f83624064618?pvs=4", '_blank').focus();
-			else if (id == 'database')
-				window.open("https://www.notion.so/DataBase-1e7af0392b1680d0b6c3c382a4ef219b?pvs=4", '_blank').focus();
+			if (id == 'livraria')
+				window.open("https://www.notion.so/Livraria-1e8af0392b1680749c3fd1656767a4d4?pvs=4", '_blank').focus();
+			else if (id == 'filmes')
+				window.open("https://www.notion.so/Cinema-1e8af0392b16806395ebe812e3c26095?pvs=4", '_blank').focus();
+			else if (id == 'series')
+				window.open("https://www.notion.so/S-ries-1e8af0392b16809cb692f1f1e87b939a?pvs=4", '_blank').focus();
+			
 
+			
 		}
 	</script>
 
