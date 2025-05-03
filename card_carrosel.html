@@ -6,104 +6,106 @@
   <title>Carrossel de Cards</title>
   <style>
     * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
 }
 
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f0f2f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: rgba(240, 242, 245, 0.8); /* Fundo do corpo com leve transparência */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    .carousel {
+      position: relative;
+      width: 70%; /* Diminuindo a largura do carrossel */
+      max-width: 600px; /* Diminuindo a largura máxima */
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0); /* Fundo do carrossel transparente */
+    }
+    
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+    
+    .card {
+      min-width: 40%; /* Diminuindo a largura dos cards */
+      background-color: #fff; /* Mantendo o fundo branco nos cards */
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 10px; /* Menos padding */
+    }
+    
+    .card img {
+      width: 100%;
+      height: 150px; /* Menor altura da imagem */
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px; /* Menos espaço abaixo da imagem */
+    }
+    
+    .card h2 {
+      font-size: 18px; /* Tamanho da fonte menor */
+      margin-bottom: 5px; /* Menos margem */
+      color: #333;
+    }
+    
+    .card p {
+      font-size: 14px; /* Tamanho da fonte menor */
+      color: #555;
+      margin-bottom: 10px; /* Menos margem */
+    }
+    
+    .card a {
+      display: inline-block;
+      background-color: #007bff;
+      color: white;
+      padding: 8px 16px; /* Menos padding */
+      border-radius: 10px; /* Menos arredondado */
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+    
+    .card a:hover {
+      background-color: #0056b3;
+    }
+    
+    .nav-buttons {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      padding: 0 5px; /* Menos padding */
+    }
+    
+    .nav-buttons button {
+      background-color: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: white;
+      font-size: 18px; /* Menor tamanho de fonte para os botões */
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .nav-buttons button:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
 
-  .carousel {
-    position: relative;
-    width: 70%; /* Diminuindo a largura do carrossel */
-    max-width: 600px; /* Diminuindo a largura máxima */
-    overflow: hidden;
-    border-radius: 10px; /* Menos arredondado */
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
-  }
-  
-  .carousel-track {
-    display: flex;
-    transition: transform 0.5s ease;
-  }
-  
-  .card {
-    min-width: 40%; /* Diminuindo a largura dos cards */
-    background-color: #fff;
-    border-radius: 10px; /* Menos arredondado */
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 10px; /* Menos padding */
-  }
-  
-  .card img {
-    width: 100%;
-    height: 150px; /* Menor altura da imagem */
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 10px; /* Menos espaço abaixo da imagem */
-  }
-  
-  .card h2 {
-    font-size: 18px; /* Tamanho da fonte menor */
-    margin-bottom: 5px; /* Menos margem */
-    color: #333;
-  }
-  
-  .card p {
-    font-size: 14px; /* Tamanho da fonte menor */
-    color: #555;
-    margin-bottom: 10px; /* Menos margem */
-  }
-  
-  .card a {
-    display: inline-block;
-    background-color: #007bff;
-    color: white;
-    padding: 8px 16px; /* Menos padding */
-    border-radius: 10px; /* Menos arredondado */
-    text-decoration: none;
-    transition: background 0.3s;
-  }
-  
-  .card a:hover {
-    background-color: #0056b3;
-  }
-  
-  .nav-buttons {
-    position: absolute;
-    top: 50%;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    transform: translateY(-50%);
-    padding: 0 5px; /* Menos padding */
-  }
-  
-  .nav-buttons button {
-    background-color: rgba(0, 0, 0, 0.5);
-    border: none;
-    color: white;
-    font-size: 18px; /* Menor tamanho de fonte para os botões */
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .nav-buttons button:hover {
-    background-color: rgba(0, 0, 0, 0.8);
-  }
   </style>
 </head>
 <body>
