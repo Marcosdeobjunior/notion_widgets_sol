@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carrossel de Cards</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #191919; /* Fundo do corpo com leve transparência */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    .carousel {
+      position: relative;
+      width: 70%; /* Diminuindo a largura do carrossel */
+      max-width: 600px; /* Diminuindo a largura máxima */
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0); /* Fundo do carrossel transparente */
+    }
+    
+    .carousel-track {
+      display: flex;
+      gap: 10px;
+      transition: transform 0.5s ease;
+    }
+    
+    .card {
+      min-width: 40%; /* Diminuindo a largura dos cards */
+      background-color: #CCC191; /* Mantendo o fundo branco nos cards */
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 10px; /* Menos padding */
+      border: 2px solid #0A725C;
+    }
+    
+    .card img {
+      width: 100%;
+      height: 150px; /* Menor altura da imagem */
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px; /* Menos espaço abaixo da imagem */
+    }
+    
+    .card h2 {
+      font-size: 18px; /* Tamanho da fonte menor */
+      margin-bottom: 5px; /* Menos margem */
+      color: #333;
+    }
+    
+    .card p {
+      font-size: 14px; /* Tamanho da fonte menor */
+      color: #555;
+      margin-bottom: 10px; /* Menos margem */
+    }
+    
+    .card a {
+      display: inline-block;
+      background-color: #0A725C;
+      color: white;
+      padding: 8px 16px; /* Menos padding */
+      border-radius: 10px; /* Menos arredondado */
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+    
+    .card a:hover {
+      background-color: #0056b3;
+    }
+    
+    .nav-buttons {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      padding: 0 5px; /* Menos padding */
+    }
+    
+    .nav-buttons button {
+      background-color: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: white;
+      font-size: 18px; /* Menor tamanho de fonte para os botões */
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .nav-buttons button:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="carousel">
+    <div class="carousel-track">
+
+      <!-- CARD 1 -->
+      <div class="card">
+        <img src="https://m.media-amazon.com/images/I/71oOakHPmVL._AC_UF1000,1000_QL80_.jpg" alt="Imagem 1">
+        <h2><!-- TÍTULO AQUI -->Alice no País das Maravilhas</h2>
+        <a href="https://www.notion.so/Alice-no-Pa-s-das-Maravilhas-1e8af0392b16801b97d1d44d38fb98bd?pvs=4"><!-- LINK AQUI -->Saiba Mais</a>
+      </div>
+
+      <!-- CARD 2 -->
+      <div class="card">
+        <img src="https://m.media-amazon.com/images/I/81tmn7qB-bL.jpg" alt="Imagem 1">
+        <h2><!-- TÍTULO AQUI -->Estudo em Vermelho</h2>
+        <a href="https://www.notion.so/Estudo-em-Vermelho-1e8af0392b168058a144f7f5f82f9e02?pvs=4"><!-- LINK AQUI -->Saiba Mais</a>
+      </div>
+
+      <!-- CARD 3 -->
+      <div class="card">
+        <img src="https://m.media-amazon.com/images/I/81ibfYk4qmL.jpg" alt="Imagem 1">
+        <h2><!-- TÍTULO AQUI -->Harry Potter e a Pedra Filosofal</h2>
+        <a href="https://www.notion.so/Harry-Potter-e-a-Pedra-Filosofal-1e8af0392b168009bb3dce7ed3f6ec6c?pvs=4"><!-- LINK AQUI -->Saiba Mais</a>
+      </div>
+
+      <!-- CARD 4 -->
+      <div class="card">
+        <img src="https://covers.storytel.com/jpg-640/9786585168984.7032e5db-5e9b-4326-a5e8-613b03b56f3b?optimize=high&quality=70&width=600" alt="Imagem 1">
+        <h2><!-- TÍTULO AQUI -->O Príncipe</h2>
+        <a href="https://www.notion.so/O-Pr-ncipe-1e8af0392b1680b6b228cfbcb6353ab2?pvs=4"><!-- LINK AQUI -->Saiba Mais</a>
+      </div>
+
+
+      <!-- ADICIONE MAIS CARDS AQUI -->
+      <!-- Copie a estrutura acima e cole abaixo para criar mais cards -->
+
+    </div>
+
+    <!-- Botões de navegação -->
+    <div class="nav-buttons">
+      <button id="prev">&#10094;</button>
+      <button id="next">&#10095;</button>
+    </div>
+  </div>
+
+  <script>
+  const track = document.querySelector('.carousel-track');
+  const cards = document.querySelectorAll('.card');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  let currentIndex = 0;
+
+  function updateCarousel() {
+    const width = cards[0].offsetWidth;
+    track.style.transform = `translateX(-${currentIndex * width}px)`;
+  }
+
+  nextBtn.addEventListener('click', () => {
+    if (currentIndex < cards.length - 2) { // ajustado para não mostrar tela em branco
+      currentIndex++;
+      updateCarousel();
+    }
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateCarousel();
+    }
+  });
+
+  window.addEventListener('resize', updateCarousel);
+
+  // 🌀 Rolagem automática
+  function scrollCarousel() {
+    if (currentIndex < cards.length - 2) {
+      currentIndex++;
+    } else {
+      currentIndex = 0;
+    }
+    updateCarousel();
+  }
+
+  let autoScroll = setInterval(scrollCarousel, 3000); // muda a cada 3 segundos
+
+  // ⏸️ Pausa ao passar o mouse
+  document.querySelector('.carousel').addEventListener('mouseenter', () => clearInterval(autoScroll));
+  document.querySelector('.carousel').addEventListener('mouseleave', () => {
+    autoScroll = setInterval(scrollCarousel, 3000);
+  });
+</script>
+
+
+</body>
+</html>
