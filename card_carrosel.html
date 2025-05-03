@@ -6,104 +6,104 @@
   <title>Carrossel de Cards</title>
   <style>
     * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
 
-    .carousel {
-      position: relative;
-      width: 90%;
-      max-width: 900px;
-      overflow: hidden;
-      border-radius: 20px;
-      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
-    }
-
-    .carousel-track {
-      display: flex;
-      transition: transform 0.5s ease;
-    }
-
-    .card {
-      min-width: 50%;
-      background-color: #fff;
-      border-radius: 20px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .card img {
-      width: 100%;
-      height: 250px;
-      object-fit: cover;
-      border-radius: 16px;
-      margin-bottom: 20px;
-    }
-
-    .card h2 {
-      font-size: 24px;
-      margin-bottom: 10px;
-      color: #333;
-    }
-
-    .card p {
-      font-size: 16px;
-      color: #555;
-      margin-bottom: 20px;
-    }
-
-    .card a {
-      display: inline-block;
-      background-color: #007bff;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 12px;
-      text-decoration: none;
-      transition: background 0.3s;
-    }
-
-    .card a:hover {
-      background-color: #0056b3;
-    }
-
-    .nav-buttons {
-      position: absolute;
-      top: 50%;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      transform: translateY(-50%);
-      padding: 0 10px;
-    }
-
-    .nav-buttons button {
-      background-color: rgba(0,0,0,0.5);
-      border: none;
-      color: white;
-      font-size: 24px;
-      padding: 10px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .nav-buttons button:hover {
-      background-color: rgba(0,0,0,0.8);
-    }
+  .carousel {
+    position: relative;
+    width: 70%; /* Diminuindo a largura do carrossel */
+    max-width: 600px; /* Diminuindo a largura máxima */
+    overflow: hidden;
+    border-radius: 10px; /* Menos arredondado */
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .carousel-track {
+    display: flex;
+    transition: transform 0.5s ease;
+  }
+  
+  .card {
+    min-width: 40%; /* Diminuindo a largura dos cards */
+    background-color: #fff;
+    border-radius: 10px; /* Menos arredondado */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px; /* Menos padding */
+  }
+  
+  .card img {
+    width: 100%;
+    height: 150px; /* Menor altura da imagem */
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px; /* Menos espaço abaixo da imagem */
+  }
+  
+  .card h2 {
+    font-size: 18px; /* Tamanho da fonte menor */
+    margin-bottom: 5px; /* Menos margem */
+    color: #333;
+  }
+  
+  .card p {
+    font-size: 14px; /* Tamanho da fonte menor */
+    color: #555;
+    margin-bottom: 10px; /* Menos margem */
+  }
+  
+  .card a {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 8px 16px; /* Menos padding */
+    border-radius: 10px; /* Menos arredondado */
+    text-decoration: none;
+    transition: background 0.3s;
+  }
+  
+  .card a:hover {
+    background-color: #0056b3;
+  }
+  
+  .nav-buttons {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+    padding: 0 5px; /* Menos padding */
+  }
+  
+  .nav-buttons button {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    font-size: 18px; /* Menor tamanho de fonte para os botões */
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .nav-buttons button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
   </style>
 </head>
 <body>
@@ -197,31 +197,49 @@
 
   <script>
     const track = document.querySelector('.carousel-track');
-    const cards = document.querySelectorAll('.card');
-    const prevBtn = document.getElementById('prev');
-    const nextBtn = document.getElementById('next');
-    let currentIndex = 0;
+const cards = document.querySelectorAll('.card');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+let currentIndex = 0;
 
-    function updateCarousel() {
-      const width = cards[0].offsetWidth;
-      track.style.transform = `translateX(-${currentIndex * width}px)`;
-    }
+function updateCarousel() {
+  const width = cards[0].offsetWidth;
+  track.style.transform = `translateX(-${currentIndex * width}px)`;
 
-    nextBtn.addEventListener('click', () => {
-      if (currentIndex < cards.length - 1) {
-        currentIndex++;
-        updateCarousel();
-      }
-    });
+  // Desabilitar o botão "Próximo" se estivermos no último card
+  if (currentIndex === cards.length - 1) {
+    nextBtn.disabled = true;
+  } else {
+    nextBtn.disabled = false;
+  }
 
-    prevBtn.addEventListener('click', () => {
-      if (currentIndex > 0) {
-        currentIndex--;
-        updateCarousel();
-      }
-    });
+  // Desabilitar o botão "Anterior" se estivermos no primeiro card
+  if (currentIndex === 0) {
+    prevBtn.disabled = true;
+  } else {
+    prevBtn.disabled = false;
+  }
+}
 
-    window.addEventListener('resize', updateCarousel);
+nextBtn.addEventListener('click', () => {
+  if (currentIndex < cards.length - 1) {
+    currentIndex++;
+    updateCarousel();
+  }
+});
+
+prevBtn.addEventListener('click', () => {
+  if (currentIndex > 0) {
+    currentIndex--;
+    updateCarousel();
+  }
+});
+
+window.addEventListener('resize', updateCarousel);
+
+// Inicializar o carrossel para garantir que o estado do botão esteja correto
+updateCarousel();
+
   </script>
 
 </body>
