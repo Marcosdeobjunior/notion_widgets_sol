@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carrossel de Cards</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .carousel {
+      position: relative;
+      width: 90%;
+      max-width: 900px;
+      overflow: hidden;
+      border-radius: 20px;
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+
+    .card {
+      min-width: 50%;
+      background-color: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .card p {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .card a {
+      display: inline-block;
+      background-color: #007bff;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    .card a:hover {
+      background-color: #0056b3;
+    }
+
+    .nav-buttons {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      padding: 0 10px;
+    }
+
+    .nav-buttons button {
+      background-color: rgba(0,0,0,0.5);
+      border: none;
+      color: white;
+      font-size: 24px;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .nav-buttons button:hover {
+      background-color: rgba(0,0,0,0.8);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="carousel">
+    <div class="carousel-track">
+
+      <!-- CARD 1 -->
+      <div class="card">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQW5ieYxv9grNPYkj59G6xlioaY-wLe-1jwWw&s" alt="Imagem 1">
+        <h2><!-- TÍTULO AQUI -->Faculdade</h2>
+        <p><!-- DESCRIÇÃO AQUI -->Fazer faculdade traz diversas vantagens significativas. Primeiramente, aumenta as chances de conseguir um bom emprego, já que muitas vagas exigem formação superior como critério básico. </p>
+        <a href="https://www.notion.so/Faculdade-1e7af0392b168068884ee7d3d79bf6be?pvs=4"><!-- LINK AQUI -->Saiba Mais</a>
+      </div>
+
+      <!-- CARD 2 -->
+      <div class="card">
+        <img src="https://mr0.homeflow-assets.co.uk/files/photo/image/41264/8228/652x/ALL180080_35.jpg" alt="Imagem 2">
+        <h2>Case Própria</h2>
+        <p>Adquirir uma casa própria oferece diversas vantagens que vão além da estabilidade financeira. A principal delas é a segurança: ter um imóvel próprio significa não depender de aluguel ou de decisões de terceiros, garantindo um lar permanente para você e sua família</p>
+        <a href="https://www.notion.so/Casa-Pr-pria-1e7af0392b16808681a2fd214a6ece3b?pvs=4">Visitar</a>
+      </div>
+
+      <!-- CARD 3 -->
+      <div class="card">
+        <img src="https://i0.wp.com/jennymag.com/wp-content/uploads/2024/04/living-alone-happy-2194712968-e1712149802685.jpg?resize=2000%2C1333&ssl=1" alt="Imagem 2">
+        <h2>Morar Sozinho</h2>
+        <p>Morar sozinho traz uma série de vantagens relacionadas à independência e ao crescimento pessoal. Uma das principais é a liberdade de tomar decisões sem precisar dar satisfações a ninguém, desde a organização do espaço até a rotina do dia a dia.</p>
+        <a href="https://www.notion.so/Morar-Sozinho-1e7af0392b168098b88cc8abd0ecf099?pvs=4">Visitar</a>
+      </div>
+
+      <!-- CARD 4 -->
+      <div class="card">
+        <img src="https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_400,q_65,w_700/v1/clients/liverpool/50_Free_things_to_do_hero_08c3a113-2333-40a9-91c0-adf34c194203.png" alt="Imagem 2">
+        <h2>Outro País</h2>
+        <p>Morar em Liverpool oferece diversas vantagens, especialmente para quem busca um ambiente dinâmico e culturalmente rico. A cidade é famosa por sua história musical, sendo o berço dos Beatles, o que atrai muitos amantes da música e da cultura pop.</p>
+        <a href="https://www.notion.so/Outro-Pa-s-1e8af0392b1680a1a198e99e597a8b85?pvs=4">Visitar</a>
+      </div>
+
+      <!-- CARD 5 -->
+      <div class="card">
+        <img src="https://preview.redd.it/kirito-and-asuna-cosplay-v0-ruk89e1cxfed1.jpg?width=640&crop=smart&auto=webp&s=ae51862afa5ae87b07917efa4a4256b750d25caf" alt="Imagem 2">
+        <h2>Namorar</h2>
+        <p>Namorar é uma experiência única que traz alegria e cumplicidade. Estar ao lado de alguém especial permite compartilhar momentos, sentimentos e vivências, criando uma conexão profunda.</p>
+        <a href="https://www.notion.so/Namorar-1e8af0392b1680728536f63dbb3d11aa?pvs=4">Visitar</a>
+      </div>
+
+      <!-- CARD 6 -->
+      <div class="card">
+        <img src="https://danki.thecode.com.br/wp-content/uploads/2023/02/cover-1200x675-1.png" alt="Imagem 2">
+        <h2>Danki Code</h2>
+        <p>O curso DankiCode é uma excelente opção para quem deseja aprender programação de forma prática e dinâmica.</p>
+        <a href="https://www.notion.so/Danki-Code-1e8af0392b1680dd89bccda2c64883fa?pvs=4">Visitar</a>
+      </div>
+
+      <!-- CARD 7 -->
+      <div class="card">
+        <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2024/12/aprender-ingles.jpg?w=420&h=240&crop=1&quality=85" alt="Imagem 2">
+        <h2>Inglês</h2>
+        <p>Aprender inglês é uma das habilidades mais valiosas nos dias de hoje, pois abre portas para novas oportunidades profissionais, culturais e sociais.</p>
+        <a href="https://www.notion.so/Ingl-s-1e8af0392b1680ecb4aaec08fa69de74?pvs=4">Visitar</a>
+      </div>     
+
+      <!-- CARD 8 -->
+      <div class="card">
+        <img src="https://www.embraplan.com.br/imagens/noticias/11b986fc-d5a6-49a8-ba84-7cbbe8b6f93e.jpg" alt="Imagem 2">
+        <h2>Academia</h2>
+        <p>A academia é o lugar ideal para quem deseja melhorar a saúde física e mental. Além de ajudar a melhorar o condicionamento físico, o treino regular fortalece o corpo, aumenta a disposição e reduz o estresse.</p>
+        <a href="https://www.notion.so/Academia-1e8af0392b16803d89a6cb38dbcbe360?pvs=4">Visitar</a>
+      </div> 
+
+      <!-- CARD 9 -->
+      <div class="card">
+        <img src="https://www.estudarfora.org.br/wp-content/uploads/2019/07/pena.jpg" alt="Imagem 2">
+        <h2>Livro</h2>
+        <p>Escrever um livro é um processo desafiador e ao mesmo tempo fascinante. Ao transformar ideias em palavras, você tem a oportunidade de criar algo único, que pode impactar leitores de diferentes maneiras.</p>
+        <a href="https://www.notion.so/Escritor-1e8af0392b1680358974c5f5a25217e2?pvs=4">Visitar</a>
+      </div> 
+
+      <!-- ADICIONE MAIS CARDS AQUI -->
+      <!-- Copie a estrutura acima e cole abaixo para criar mais cards -->
+
+    </div>
+
+    <!-- Botões de navegação -->
+    <div class="nav-buttons">
+      <button id="prev">&#10094;</button>
+      <button id="next">&#10095;</button>
+    </div>
+  </div>
+
+  <script>
+    const track = document.querySelector('.carousel-track');
+    const cards = document.querySelectorAll('.card');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    let currentIndex = 0;
+
+    function updateCarousel() {
+      const width = cards[0].offsetWidth;
+      track.style.transform = `translateX(-${currentIndex * width}px)`;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < cards.length - 1) {
+        currentIndex++;
+        updateCarousel();
+      }
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateCarousel();
+      }
+    });
+
+    window.addEventListener('resize', updateCarousel);
+  </script>
+
+</body>
+</html>
