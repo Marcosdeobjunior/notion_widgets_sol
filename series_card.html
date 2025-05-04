@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Galeria de Séries</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #191919;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    a.card {
+      display: block;
+      background: #C8BD8D; /* Altere aqui a cor do fundo do card */
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid #077B58;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: contain; /* Imagem não será cortada */
+      background-color: #000;
+    }
+
+    .content {
+      padding: 15px;
+    }
+
+    .title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .stars {
+      margin: 5px 0;
+    }
+
+    .stars span {
+      font-size: 1.2rem;
+      color: gray;
+      cursor: pointer;
+    }
+
+    .stars span.active {
+      color: gold;
+    }
+
+    .info {
+      font-size: 0.9rem;
+      color: #444;
+      margin: 3px 0;
+    }
+
+    .status {
+      font-size: 0.85rem;
+      font-weight: bold;
+      padding: 2px 6px;
+      display: inline-block;
+      border-radius: 4px;
+      margin-top: 6px;
+    }
+
+    .status.ativa {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status.completa {
+      background-color: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .status.cancelada {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .pagination {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .pagination button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      border: none;
+      background-color: #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background-color: #999;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="cardContainer" class="grid"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <script>
+    // Lista de séries (adicione mais conforme necessário)
+    const series = [
+      {
+        titulo: "Sword Art Online",
+        imagem: "https://images.justwatch.com/poster/199736429/s718/sodoatoonrain.jpg",
+        status: "Ativa",
+        temporadas: 3,
+        episodios: 97,
+        nota: 5,
+        genero: " Aventura",
+        tipo: "Anime",
+        link: "https://www.notion.so/Sword-Art-Online-1e9af0392b1680a9ba4df70c15d2e2aa?pvs=4"
+      },
+      {
+        titulo: "Brooklyn Nine-Nine",
+        imagem: "https://m.media-amazon.com/images/S/pv-target-images/e75266cb98981d57cc74f541e83358499251a15de6286b35585234f8fd7f99e4.jpg",
+        status: "Completa",
+        temporadas: 8,
+        episodios: 153,
+        nota: 5,
+        genero: "Sitcom",
+        tipo: "Série",
+        link: "https://www.notion.so/Brooklyn-Nine-Nine-1e9af0392b168043a7a4e6b0d506afcc?pvs=4"
+      },
+      {
+        titulo: "Your Lie in April",
+        imagem: "https://static.wikia.nocookie.net/shigatsu-wa-kimi-no-uso/images/0/0f/ImgTop3.jpg/revision/latest?cb=20141018011830",
+        status: "Completa",
+        temporadas: 1,
+        episodios: 16,
+        nota: 5,
+        genero: "drama, romance e música",
+        tipo: "Anime",
+        link: "https://www.notion.so/Your-Lie-in-April-1e9af0392b16803191dfcb5c868ca571?pvs=4"
+      },
+      {
+        titulo: "Stranger Things",
+        imagem: "https://m.media-amazon.com/images/M/MV5BMjg2NmM0MTEtYWY2Yy00NmFlLTllNTMtMjVkZjEwMGVlNzdjXkEyXkFqcGc@._V1_.jpg",
+        status: "Completa",
+        temporadas: 4,
+        episodios: 34,
+        nota: 5,
+        genero: "Terror",
+        tipo: "Série",
+        link: "https://www.notion.so/Stranger-Things-1e9af0392b16807d8922eef79dea2715?pvs=4"
+      },
+      // Adicione mais itens aqui
+    ];
+
+    const cardsPorPagina = 16;
+    let paginaAtual = 1;
+
+    function renderizarCards() {
+      const inicio = (paginaAtual - 1) * cardsPorPagina;
+      const fim = inicio + cardsPorPagina;
+      const seriesPagina = series.slice(inicio, fim);
+
+      const container = document.getElementById("cardContainer");
+      container.innerHTML = "";
+
+      seriesPagina.forEach((serie, index) => {
+        const card = document.createElement("a");
+        card.className = "card";
+        card.href = serie.link;
+        card.target = "_blank";
+        card.rel = "noopener noreferrer";
+
+        const statusClass = serie.status.toLowerCase();
+
+        card.innerHTML = `
+          <img src="${serie.imagem}" alt="${serie.titulo}">
+          <div class="content">
+            <div class="title">${serie.titulo}</div>
+            <div class="stars" data-index="${index + inicio}">
+              ${[1,2,3,4,5].map(i => 
+                `<span class="${i <= serie.nota ? "active" : ""}" data-star="${i}">&#9733;</span>`
+              ).join('')}
+            </div>
+            <div class="info">Gênero: ${serie.genero}</div>
+            <div class="info">Tipo: ${serie.tipo}</div>
+            <div class="info">Temporadas: ${serie.temporadas} • Episódios: ${serie.episodios}</div>
+            <div class="status ${statusClass}">${serie.status}</div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      adicionarListenersEstrelas();
+      renderizarPaginacao();
+    }
+
+    function adicionarListenersEstrelas() {
+      document.querySelectorAll(".stars").forEach((starsContainer) => {
+        const index = starsContainer.dataset.index;
+
+        starsContainer.querySelectorAll("span").forEach((estrela) => {
+          estrela.addEventListener("click", (e) => {
+            e.preventDefault(); // evitar abrir link ao clicar na estrela
+            e.stopPropagation(); // evitar propagação para o card
+            const rating = parseInt(estrela.dataset.star);
+            series[index].nota = rating;
+            renderizarCards();
+          });
+        });
+      });
+    }
+
+    function renderizarPaginacao() {
+      const totalPaginas = Math.ceil(series.length / cardsPorPagina);
+      const pagContainer = document.getElementById("pagination");
+      pagContainer.innerHTML = "";
+
+      for (let i = 1; i <= totalPaginas; i++) {
+        const botao = document.createElement("button");
+        botao.innerText = i;
+        if (i === paginaAtual) botao.classList.add("active");
+        botao.addEventListener("click", () => {
+          paginaAtual = i;
+          renderizarCards();
+        });
+        pagContainer.appendChild(botao);
+      }
+    }
+
+    // Inicializar
+    renderizarCards();
+  </script>
+</body>
+</html>
