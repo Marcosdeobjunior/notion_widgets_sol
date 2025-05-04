@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Top 5 Widget</title>
+  <style>
+    body {
+      margin: 0;
+      background: #191919;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .card {
+      /* 🔧 Tamanho do card: você pode ajustar aqui */
+      width: 200px;   /* Altere para o tamanho desejado */
+      height: 240px;  /* Altere para o tamanho desejado */
+      background: #D2C897;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 20px;  /* 🔧 Espaçamento interno reduzido */
+      box-sizing: border-box;
+      transition: transform 0.1s ease;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      border: #03775A;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 16px; /* 🔧 Título menor */
+      border-bottom: 1px solid #444;
+      padding-bottom: 6px;
+      color: #03775A;
+    }
+
+    .card ol {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .card ol li {
+      font-size: 12px; /* 🔧 Itens da lista menores */
+      padding: 6px 0;
+      border-bottom: 1px solid #333;
+      color: #03775A;
+    }
+
+    .card ol li:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <h2>Top 5</h2>
+    <ol>
+      <li>1. Saga Harry Potter</li>
+      <li>2. Alice no País das Maravilhas 2</li>
+      <li>3. Show de Truman</li>
+      <li>4. Ultimato</li>
+      <li>5. Spirit</li>
+    </ol>
+  </div>
+
+  <script>
+    const card = document.getElementById('card');
+    document.addEventListener('mousemove', (e) => {
+      const x = (window.innerWidth / 2 - e.clientX) / 25;
+      const y = (window.innerHeight / 2 - e.clientY) / 25;
+      card.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+    });
+  </script>
+</body>
+</html>
