@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Widget de Leitura</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      display: flex;
+      gap: 30px;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .meta, .meta-stats {
+      margin-bottom: 20px;
+    }
+
+    .meta input {
+      width: 80px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 5px;
+    }
+
+    .meta-stats p {
+      margin: 8px 0;
+    }
+
+    .main-content {
+      flex: 1;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      background-color: #e0e0e0;
+      padding: 10px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .tab.active {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .card h3 {
+      margin: 10px 0 5px;
+      font-size: 1.1rem;
+    }
+
+    .stars {
+      color: #ffb400;
+      font-size: 1.1rem;
+    }
+
+    .card button {
+      margin-top: 8px;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+
+    .card button:hover {
+      background: #45a049;
+    }
+
+    .genres-list {
+      margin-top: 30px;
+    }
+
+    .genres-list span {
+      display: inline-block;
+      background: #ddd;
+      padding: 6px 12px;
+      margin: 5px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .genres-list span:hover {
+      background: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar com Meta e Estatísticas -->
+    <div class="sidebar">
+      <div class="meta">
+        <h3>Meta do Ano</h3>
+        <input type="number" id="yearGoal" value="50" /> livros
+      </div>
+      <div class="meta-stats" id="metaStats">
+        <h4>Status</h4>
+        <p>A Ler: <span id="toReadCount">0</span></p>
+        <p>Quero Ler: <span id="wantToReadCount">0</span></p>
+        <p>Lido: <span id="readCount">0</span></p>
+      </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-content">
+      <!-- Abas de Filtro -->
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-filter="all">Todos</div>
+        <div class="tab" data-filter="favorite">Favoritos</div>
+        <div class="tab" data-filter="to-read">A Ler</div>
+        <div class="tab" data-filter="want-to-read">Quero Ler</div>
+        <div class="tab" data-filter="read">Lido</div>
+      </div>
+
+      <!-- Lista de Cards -->
+      <div class="grid" id="cardList"></div>
+
+      <!-- Lista de Gêneros -->
+      <div class="genres-list" id="genres">
+        <h4>Gêneros</h4>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const books = [
+      {
+        id: 1,
+        title: "Livro Exemplo 1",
+        status: "to-read",
+        stars: 3,
+        genre: "Fantasia",
+        favorite: false,
+        image: "https://via.placeholder.com/150",
+        link: "#"
+      },
+      // Adicione mais livros aqui...
+    ];
+
+    const genresSet = new Set();
+
+    function renderCards(filter = "all") {
+      const cardList = document.getElementById('cardList');
+      cardList.innerHTML = '';
+
+      let filtered = books;
+      if (filter !== 'all') {
+        if (filter === 'favorite') {
+          filtered = books.filter(b => b.favorite);
+        } else {
+          filtered = books.filter(b => b.status === filter);
+        }
+      }
+
+      filtered.forEach(book => {
+        genresSet.add(book.genre);
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${book.image}" alt="${book.title}" />
+          <h3>${book.title}</h3>
+          <p>Status: ${statusLabel(book.status)}</p>
+          <p class="stars">${'★'.repeat(book.stars)}${'☆'.repeat(5 - book.stars)}</p>
+          <p>Gênero: ${book.genre}</p>
+          <button onclick="window.open('${book.link}')">Ver</button>
+          <button onclick="toggleFavorite(${book.id})">
+            ${book.favorite ? '★' : '☆'} Favorito
+          </button>
+        `;
+        cardList.appendChild(card);
+      });
+
+      renderGenres();
+      updateMetaStats();
+    }
+
+    function statusLabel(status) {
+      return {
+        'to-read': 'A Ler',
+        'want-to-read': 'Quero Ler',
+        'read': 'Lido'
+      }[status] || status;
+    }
+
+    function toggleFavorite(id) {
+      const book = books.find(b => b.id === id);
+      if (book) book.favorite = !book.favorite;
+      renderCards(document.querySelector('.tab.active').dataset.filter);
+    }
+
+    function renderGenres() {
+      const genres = document.getElementById('genres');
+      genres.innerHTML = '<h4>Gêneros</h4>';
+      genresSet.forEach(genre => {
+        const el = document.createElement('span');
+        el.innerText = genre;
+        el.onclick = () => renderCardsByGenre(genre);
+        genres.appendChild(el);
+      });
+    }
+
+    function renderCardsByGenre(genre) {
+      const filtered = books.filter(b => b.genre === genre);
+      const cardList = document.getElementById('cardList');
+      cardList.innerHTML = '';
+      filtered.forEach(book => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${book.image}" alt="${book.title}" />
+          <h3>${book.title}</h3>
+          <p>Status: ${statusLabel(book.status)}</p>
+          <p class="stars">${'★'.repeat(book.stars)}${'☆'.repeat(5 - book.stars)}</p>
+          <p>Gênero: ${book.genre}</p>
+          <button onclick="window.open('${book.link}')">Ver</button>
+          <button onclick="toggleFavorite(${book.id})">
+            ${book.favorite ? '★' : '☆'} Favorito
+          </button>
+        `;
+        cardList.appendChild(card);
+      });
+    }
+
+    function updateMetaStats() {
+      document.getElementById('toReadCount').innerText = books.filter(b => b.status === 'to-read').length;
+      document.getElementById('wantToReadCount').innerText = books.filter(b => b.status === 'want-to-read').length;
+      document.getElementById('readCount').innerText = books.filter(b => b.status === 'read').length;
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderCards(tab.dataset.filter);
+      });
+    });
+
+    renderCards();
+  </script>
+</body>
+</html>
