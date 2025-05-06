@@ -3,284 +3,285 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Widget de Leitura</title>
+  <title>Widget de Livros</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* Estilo geral */
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f7fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      background: #f0f2f5;
+      color: #333;
     }
 
     .container {
       display: flex;
-      gap: 30px;
+      min-height: 100vh;
     }
 
+    /* Barra lateral esquerda */
     .sidebar {
       width: 250px;
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      background-color: #fff;
+      padding: 1rem;
+      border-right: 1px solid #ddd;
     }
 
-    .meta, .meta-stats {
-      margin-bottom: 20px;
-    }
-
-    .meta input {
-      width: 80px;
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-top: 5px;
-    }
-
-    .meta-stats p {
-      margin: 8px 0;
-    }
-
-    .main-content {
+    /* Área principal */
+    .main {
       flex: 1;
+      padding: 2rem;
     }
 
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
+    .filters, .genres, .meta {
+      margin-bottom: 1.5rem;
     }
 
-    .tab {
-      background-color: #e0e0e0;
-      padding: 10px 15px;
+    /* Botões de filtro e gêneros */
+    .filters button, .genres button {
+      margin: 0.3rem;
+      padding: 0.5rem 1rem;
+      border: none;
       border-radius: 20px;
+      background: #e0e0e0;
       cursor: pointer;
-      transition: 0.3s;
+      transition: background 0.3s;
     }
 
-    .tab.active {
-      background-color: #4caf50;
+    .filters button.active, .genres button.active,
+    .filters button:hover, .genres button:hover {
+      background: #0078D7;
       color: white;
     }
 
-    .grid {
+    /* Grid de cards */
+    .card-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
     }
 
     .card {
       background: white;
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
     }
 
     .card img {
       width: 100%;
       height: 160px;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 6px;
     }
 
     .card h3 {
-      margin: 10px 0 5px;
+      margin: 0.5rem 0 0.2rem;
       font-size: 1.1rem;
     }
 
     .stars {
-      color: #ffb400;
-      font-size: 1.1rem;
+      color: gold;
+      margin: 0.2rem 0;
     }
 
-    .card button {
-      margin-top: 8px;
-      padding: 8px;
-      border: none;
-      border-radius: 6px;
-      background: #4caf50;
-      color: white;
-      cursor: pointer;
+    .card .genre, .card .author, .card .status {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.3rem;
     }
 
-    .card button:hover {
-      background: #45a049;
-    }
-
-    .genres-list {
-      margin-top: 30px;
-    }
-
-    .genres-list span {
+    .card button, .card a {
+      margin-top: 0.3rem;
       display: inline-block;
-      background: #ddd;
-      padding: 6px 12px;
-      margin: 5px;
-      border-radius: 20px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.85rem;
+      border: none;
+      border-radius: 4px;
+      background-color: #f0f0f0;
+      color: #333;
+      text-decoration: none;
       cursor: pointer;
-      transition: 0.3s;
+      transition: background 0.3s;
     }
 
-    .genres-list span:hover {
-      background: #ccc;
+    .card button:hover, .card a:hover {
+      background-color: #ccc;
+    }
+
+    .meta h3 {
+      margin-top: 0;
+    }
+
+    .meta input {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 1rem;
+    }
+
+    .status-count div {
+      margin: 0.2rem 0;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Sidebar com Meta e Estatísticas -->
+    <!-- Barra lateral com a meta e contagem por status -->
     <div class="sidebar">
       <div class="meta">
-        <h3>Meta do Ano</h3>
-        <input type="number" id="yearGoal" value="50" /> livros
-      </div>
-      <div class="meta-stats" id="metaStats">
-        <h4>Status</h4>
-        <p>A Ler: <span id="toReadCount">0</span></p>
-        <p>Quero Ler: <span id="wantToReadCount">0</span></p>
-        <p>Lido: <span id="readCount">0</span></p>
+        <h3>Meta Anual</h3>
+        <input type="number" id="goal" placeholder="Digite a meta...">
+        <div class="status-count">
+          <div>Lido: <span id="count-lido">0</span></div>
+          <div>A Ler: <span id="count-aler">0</span></div>
+          <div>Quero Ler: <span id="count-queroler">0</span></div>
+        </div>
       </div>
     </div>
 
-    <!-- Conteúdo Principal -->
-    <div class="main-content">
-      <!-- Abas de Filtro -->
-      <div class="tabs" id="tabs">
-        <div class="tab active" data-filter="all">Todos</div>
-        <div class="tab" data-filter="favorite">Favoritos</div>
-        <div class="tab" data-filter="to-read">A Ler</div>
-        <div class="tab" data-filter="want-to-read">Quero Ler</div>
-        <div class="tab" data-filter="read">Lido</div>
+    <!-- Conteúdo principal -->
+    <div class="main">
+      <!-- Filtros por status -->
+      <div class="filters">
+        <button onclick="filterCards('Todos')" class="active">Todos</button>
+        <button onclick="filterCards('Favoritos')">Favoritos</button>
+        <button onclick="filterCards('A Ler')">A Ler</button>
+        <button onclick="filterCards('Quero Ler')">Quero Ler</button>
+        <button onclick="filterCards('Lido')">Lido</button>
       </div>
 
-      <!-- Lista de Cards -->
-      <div class="grid" id="cardList"></div>
+      <!-- Lista de cards -->
+      <div class="card-list" id="card-list"></div>
 
-      <!-- Lista de Gêneros -->
-      <div class="genres-list" id="genres">
-        <h4>Gêneros</h4>
-      </div>
+      <!-- Lista de gêneros -->
+      <div class="genres" id="genre-list"></div>
     </div>
   </div>
 
   <script>
-    const books = [
+    // Carrega os livros do localStorage ou usa lista de exemplo
+    const books = JSON.parse(localStorage.getItem('books')) || [
       {
-        id: 1,
-        title: "Livro Exemplo 1",
-        status: "to-read",
-        stars: 3,
-        genre: "Fantasia",
-        favorite: false,
-        image: "https://via.placeholder.com/150",
-        link: "#"
+        titulo: 'Livro 1',
+        autor: 'Autor A',
+        status: 'Lido',
+        nota: 4,
+        favorito: true,
+        genero: 'Ficção',
+        imagem: 'https://via.placeholder.com/250x150',
+        link: '#'
       },
-      // Adicione mais livros aqui...
+      {
+        titulo: 'Livro 2',
+        autor: 'Autor B',
+        status: 'A Ler',
+        nota: 0,
+        favorito: false,
+        genero: 'Terror',
+        imagem: 'https://via.placeholder.com/250x150',
+        link: '#'
+      },
     ];
 
-    const genresSet = new Set();
+    const goalInput = document.getElementById('goal');
+    goalInput.value = localStorage.getItem('goal') || '';
 
-    function renderCards(filter = "all") {
-      const cardList = document.getElementById('cardList');
+    const cardList = document.getElementById('card-list');
+    const genreList = document.getElementById('genre-list');
+
+    // Salva livros no localStorage
+    function saveBooks() {
+      localStorage.setItem('books', JSON.stringify(books));
+    }
+
+    // Renderiza os cards filtrados
+    function renderCards(filtro = 'Todos', genero = null) {
       cardList.innerHTML = '';
-
-      let filtered = books;
-      if (filter !== 'all') {
-        if (filter === 'favorite') {
-          filtered = books.filter(b => b.favorite);
-        } else {
-          filtered = books.filter(b => b.status === filter);
+      let filtrados = books.filter(book => {
+        if (filtro !== 'Todos') {
+          if (filtro === 'Favoritos' && !book.favorito) return false;
+          if (book.status !== filtro && filtro !== 'Favoritos') return false;
         }
-      }
+        if (genero && book.genero !== genero) return false;
+        return true;
+      });
 
-      filtered.forEach(book => {
-        genresSet.add(book.genre);
+      filtrados.forEach(book => {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-          <img src="${book.image}" alt="${book.title}" />
-          <h3>${book.title}</h3>
-          <p>Status: ${statusLabel(book.status)}</p>
-          <p class="stars">${'★'.repeat(book.stars)}${'☆'.repeat(5 - book.stars)}</p>
-          <p>Gênero: ${book.genre}</p>
-          <button onclick="window.open('${book.link}')">Ver</button>
-          <button onclick="toggleFavorite(${book.id})">
-            ${book.favorite ? '★' : '☆'} Favorito
+          <img src="${book.imagem}" alt="${book.titulo}">
+          <h3>${book.titulo}</h3>
+          <div class="author">Autor: ${book.autor}</div>
+          <div class="status">Status: ${book.status}</div>
+          <div class="stars">${'★'.repeat(book.nota)}${'☆'.repeat(5 - book.nota)}</div>
+          <button onclick="toggleFavorito('${book.titulo}')">
+            ${book.favorito ? '★ Remover dos Favoritos' : '☆ Adicionar aos Favoritos'}
           </button>
+          <div class="genre">Gênero: ${book.genero}</div>
+          <a href="${book.link}" target="_blank">Ver Livro</a>
         `;
         cardList.appendChild(card);
       });
 
-      renderGenres();
-      updateMetaStats();
+      updateStatusCounts();
     }
 
-    function statusLabel(status) {
-      return {
-        'to-read': 'A Ler',
-        'want-to-read': 'Quero Ler',
-        'read': 'Lido'
-      }[status] || status;
-    }
-
-    function toggleFavorite(id) {
-      const book = books.find(b => b.id === id);
-      if (book) book.favorite = !book.favorite;
-      renderCards(document.querySelector('.tab.active').dataset.filter);
-    }
-
+    // Renderiza a lista de gêneros com contagem
     function renderGenres() {
-      const genres = document.getElementById('genres');
-      genres.innerHTML = '<h4>Gêneros</h4>';
-      genresSet.forEach(genre => {
-        const el = document.createElement('span');
-        el.innerText = genre;
-        el.onclick = () => renderCardsByGenre(genre);
-        genres.appendChild(el);
+      const contagem = {};
+      books.forEach(book => {
+        contagem[book.genero] = (contagem[book.genero] || 0) + 1;
       });
+      genreList.innerHTML = '';
+      for (let genero in contagem) {
+        const btn = document.createElement('button');
+        btn.innerText = `${genero} (${contagem[genero]})`;
+        btn.onclick = () => renderCards('Todos', genero);
+        genreList.appendChild(btn);
+      }
     }
 
-    function renderCardsByGenre(genre) {
-      const filtered = books.filter(b => b.genre === genre);
-      const cardList = document.getElementById('cardList');
-      cardList.innerHTML = '';
-      filtered.forEach(book => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <img src="${book.image}" alt="${book.title}" />
-          <h3>${book.title}</h3>
-          <p>Status: ${statusLabel(book.status)}</p>
-          <p class="stars">${'★'.repeat(book.stars)}${'☆'.repeat(5 - book.stars)}</p>
-          <p>Gênero: ${book.genre}</p>
-          <button onclick="window.open('${book.link}')">Ver</button>
-          <button onclick="toggleFavorite(${book.id})">
-            ${book.favorite ? '★' : '☆'} Favorito
-          </button>
-        `;
-        cardList.appendChild(card);
-      });
+    // Filtra os cards e atualiza os botões
+    function filterCards(filtro) {
+      document.querySelectorAll('.filters button').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderCards(filtro);
     }
 
-    function updateMetaStats() {
-      document.getElementById('toReadCount').innerText = books.filter(b => b.status === 'to-read').length;
-      document.getElementById('wantToReadCount').innerText = books.filter(b => b.status === 'want-to-read').length;
-      document.getElementById('readCount').innerText = books.filter(b => b.status === 'read').length;
+    // Alterna favorito e salva
+    function toggleFavorito(titulo) {
+      const book = books.find(b => b.titulo === titulo);
+      if (book) book.favorito = !book.favorito;
+      saveBooks();
+      renderCards(document.querySelector('.filters button.active').innerText);
     }
 
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        renderCards(tab.dataset.filter);
-      });
+    // Atualiza contadores por status
+    function updateStatusCounts() {
+      document.getElementById('count-lido').innerText = books.filter(b => b.status === 'Lido').length;
+      document.getElementById('count-aler').innerText = books.filter(b => b.status === 'A Ler').length;
+      document.getElementById('count-queroler').innerText = books.filter(b => b.status === 'Quero Ler').length;
+    }
+
+    // Salva meta no localStorage
+    goalInput.addEventListener('input', () => {
+      localStorage.setItem('goal', goalInput.value);
     });
 
+    // Inicialização
     renderCards();
+    renderGenres();
+    updateStatusCounts();
   </script>
 </body>
 </html>
