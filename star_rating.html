@@ -4,9 +4,12 @@
   <meta charset="UTF-8" />
   <title>Widget de Estrelas</title>
   <style>
+    body {
+      background-color: #191919;
+    }
+    
     .star-rating {
       display: inline-flex;
-      direction: rtl;
       font-size: 2rem;
       cursor: pointer;
     }
@@ -24,20 +27,18 @@
 </head>
 <body>
 
-  <!-- Apenas configure um ID único para cada widget -->
-  <div class="star-widget" data-id="avaliacao-livro-1"></div>
-  <div class="star-widget" data-id="avaliacao-livro-2"></div>
+  <div class="star-widget" data-id="avaliacao-unica"></div>
 
   <script>
     document.querySelectorAll('.star-widget').forEach(widget => {
-      const totalStars = 5; // número fixo de estrelas
+      const totalStars = 5;
       const widgetId = widget.getAttribute('data-id') || 'star-widget';
       const savedRating = parseInt(localStorage.getItem(widgetId)) || 0;
 
       const container = document.createElement('div');
       container.classList.add('star-rating');
 
-      for (let i = totalStars; i >= 1; i--) {
+      for (let i = 1; i <= totalStars; i++) {
         const star = document.createElement('span');
         star.innerHTML = '★';
         star.dataset.value = i;
@@ -64,7 +65,7 @@
           container.querySelectorAll('span').forEach(s => {
             s.classList.toggle('selected', s.dataset.value <= rating);
           });
-          console.log(`Nota salva para ${widgetId}: ${rating}`);
+          console.log(`Nota salva: ${rating}`);
         });
 
         container.appendChild(star);
