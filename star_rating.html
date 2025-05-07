@@ -24,16 +24,13 @@
 </head>
 <body>
 
-  <!-- data-id é usado como chave para localStorage -->
-  <div class="star-widget" data-stars="5" data-id="avaliacao-livro-1"></div>
-  <div class="star-widget" data-stars="3" data-id="avaliacao-livro-2"></div>
+  <!-- Apenas configure um ID único para cada widget -->
+  <div class="star-widget" data-id="avaliacao-livro-1"></div>
+  <div class="star-widget" data-id="avaliacao-livro-2"></div>
 
   <script>
     document.querySelectorAll('.star-widget').forEach(widget => {
-      let totalStars = parseInt(widget.getAttribute('data-stars')) || 5;
-      if (totalStars > 5) totalStars = 5;
-      if (totalStars < 1) totalStars = 1;
-
+      const totalStars = 5; // número fixo de estrelas
       const widgetId = widget.getAttribute('data-id') || 'star-widget';
       const savedRating = parseInt(localStorage.getItem(widgetId)) || 0;
 
@@ -45,29 +42,25 @@
         star.innerHTML = '★';
         star.dataset.value = i;
 
-        // Aplicar estado salvo
         if (i <= savedRating) {
           star.classList.add('selected');
         }
 
-        // Hover
         star.addEventListener('mouseover', () => {
           container.querySelectorAll('span').forEach(s => {
             s.classList.toggle('hovered', s.dataset.value <= i);
           });
         });
 
-        // Limpa hover
         container.addEventListener('mouseleave', () => {
           container.querySelectorAll('span').forEach(s => {
             s.classList.remove('hovered');
           });
         });
 
-        // Clique
         star.addEventListener('click', () => {
           const rating = i;
-          localStorage.setItem(widgetId, rating); // salva
+          localStorage.setItem(widgetId, rating);
           container.querySelectorAll('span').forEach(s => {
             s.classList.toggle('selected', s.dataset.value <= rating);
           });
