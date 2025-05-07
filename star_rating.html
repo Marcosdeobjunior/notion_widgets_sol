@@ -4,10 +4,6 @@
   <meta charset="UTF-8" />
   <title>Widget de Estrelas</title>
   <style>
-    body {
-      background-color: #191919;
-    }
-    
     .star-rating {
       display: inline-flex;
       direction: rtl;
@@ -28,8 +24,9 @@
 </head>
 <body>
 
-  <!-- Mude apenas o valor de data-stars (1 a 5) -->
-  <div class="star-widget" data-stars="5"></div>
+  <!-- data-id é usado como chave para localStorage -->
+  <div class="star-widget" data-stars="5" data-id="avaliacao-livro-1"></div>
+  <div class="star-widget" data-stars="3" data-id="avaliacao-livro-2"></div>
 
   <script>
     document.querySelectorAll('.star-widget').forEach(widget => {
@@ -37,37 +34,44 @@
       if (totalStars > 5) totalStars = 5;
       if (totalStars < 1) totalStars = 1;
 
+      const widgetId = widget.getAttribute('data-id') || 'star-widget';
+      const savedRating = parseInt(localStorage.getItem(widgetId)) || 0;
+
       const container = document.createElement('div');
       container.classList.add('star-rating');
-
-      let selectedRating = 0;
 
       for (let i = totalStars; i >= 1; i--) {
         const star = document.createElement('span');
         star.innerHTML = '★';
         star.dataset.value = i;
 
-        // Hover effect
+        // Aplicar estado salvo
+        if (i <= savedRating) {
+          star.classList.add('selected');
+        }
+
+        // Hover
         star.addEventListener('mouseover', () => {
           container.querySelectorAll('span').forEach(s => {
             s.classList.toggle('hovered', s.dataset.value <= i);
           });
         });
 
-        // Clear hover
+        // Limpa hover
         container.addEventListener('mouseleave', () => {
           container.querySelectorAll('span').forEach(s => {
             s.classList.remove('hovered');
           });
         });
 
-        // Click to select
+        // Clique
         star.addEventListener('click', () => {
-          selectedRating = i;
+          const rating = i;
+          localStorage.setItem(widgetId, rating); // salva
           container.querySelectorAll('span').forEach(s => {
-            s.classList.toggle('selected', s.dataset.value <= i);
+            s.classList.toggle('selected', s.dataset.value <= rating);
           });
-          console.log(`Nota selecionada: ${selectedRating}`);
+          console.log(`Nota salva para ${widgetId}: ${rating}`);
         });
 
         container.appendChild(star);
