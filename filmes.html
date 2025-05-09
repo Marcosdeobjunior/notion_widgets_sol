@@ -176,6 +176,7 @@
       <input type="text" id="duration" placeholder="Duração (ex: 2h 10m)" />
       <input type="number" id="rating" min="0" max="5" placeholder="Nota (0-5)" />
       <input type="text" id="image" placeholder="URL da imagem" />
+      <input type="url" id="link" placeholder="URL do Saiba Mais" /> <!-- Novo campo para o link -->
       <button onclick="saveMovie()">Salvar Filme</button>
     </div>
   </main>
@@ -228,6 +229,7 @@
             <button onclick="markStatus(${movie.id}, 'want')">📌 Quero Assistir</button>
             <button onclick="editMovie(${movie.id})">✏️</button>
             <button onclick="deleteMovie(${movie.id})">🗑️</button>
+            <button onclick="window.location.href = '${movie.link}'">Saiba Mais</button> <!-- Usando o link -->
           </div>
         `;
         list.appendChild(div);
@@ -298,6 +300,7 @@
         duration: document.getElementById("duration").value,
         rating: parseInt(document.getElementById("rating").value),
         image: document.getElementById("image").value,
+        link: document.getElementById("link").value, // Novo campo link
         favorite: false,
         status: ""
       };
@@ -331,6 +334,7 @@
       document.getElementById("duration").value = movie.duration;
       document.getElementById("rating").value = movie.rating;
       document.getElementById("image").value = movie.image;
+      document.getElementById("link").value = movie.link; // Preenche o campo de link
       document.getElementById("addForm").style.display = "block";
     }
 
