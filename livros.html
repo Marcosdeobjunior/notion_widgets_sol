@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meu Tracker de Livros</title>
+  <style>
+    /* Estilos já definidos para manter consistência com os outros widgets */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      display: flex;
+    }
+
+    aside {
+      width: 200px;
+      background: #2c3e50;
+      color: #fff;
+      padding: 20px;
+    }
+
+    aside h2 {
+      margin-top: 0;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tabs {
+      margin: 20px 0;
+    }
+
+    .tabs button {
+      margin-right: 10px;
+      padding: 8px 12px;
+      border: none;
+      background: #ccc;
+      cursor: pointer;
+    }
+
+    .tabs button.active {
+      background: #3498db;
+      color: white;
+    }
+
+    #bookList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .book-card {
+      background: white;
+      padding: 10px;
+      width: 250px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 5px;
+      position: relative;
+    }
+
+    .book-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .book-card button {
+      margin-top: 5px;
+      padding: 4px 8px;
+    }
+
+    .genre-tags {
+      margin-top: 20px;
+    }
+
+    .genre-tags span {
+      background: #ddd;
+      padding: 5px 10px;
+      margin-right: 5px;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .add-form {
+      margin-top: 20px;
+      background: #eee;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .add-form input {
+      margin-bottom: 10px;
+      display: block;
+      width: 100%;
+      padding: 5px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .pagination {
+      margin-top: 20px;
+    }
+
+    .pagination button {
+      padding: 5px 10px;
+      margin-right: 5px;
+      border: none;
+      background: #ccc;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background: #3498db;
+      color: white;
+    }
+
+    #addBookBtn {
+      padding: 10px;
+      background: #27ae60;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>Status</h2>
+    <p>📖 Lidos: <span id="readCount">0</span></p>
+    <p>📚 Lendo: <span id="readingCount">0</span></p>
+    <p>📌 Quero Ler: <span id="wantToReadCount">0</span></p>
+  </aside>
+  <main>
+    <div class="topbar">
+      <input type="text" id="searchInput" placeholder="Pesquisar livro..." />
+      <button id="addBookBtn">➕ Adicionar Livro</button>
+    </div>
+
+    <div class="tabs">
+      <button data-tab="all" class="active">Todos</button>
+      <button data-tab="favorites">Favoritos</button>
+      <button data-tab="read">Lidos</button>
+      <button data-tab="reading">Lendo</button>
+      <button data-tab="wantToRead">Quero Ler</button>
+    </div>
+
+    <div id="bookList"></div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <div class="genre-tags" id="genreTags"></div>
+
+    <div class="add-form" id="addForm">
+      <h3>Adicionar / Editar Livro</h3>
+      <input type="hidden" id="editId" />
+      <input type="text" id="title" placeholder="Título" />
+      <input type="text" id="author" placeholder="Autor" />
+      <input type="text" id="genre" placeholder="Gênero" />
+      <input type="text" id="pages" placeholder="Número de Páginas" />
+      <input type="number" id="rating" min="0" max="5" placeholder="Nota (0-5)" />
+      <input type="text" id="image" placeholder="URL da imagem" />
+      <input type="url" id="link" placeholder="URL do Saiba Mais" /> <!-- Novo campo para o link -->
+      <button onclick="saveBook()">Salvar Livro</button>
+    </div>
+  </main>
+
+  <script>
+    // Usando 'books' para armazenar no localStorage
+    let books = JSON.parse(localStorage.getItem("books") || "[]");
+    let activeTab = "all";
+    let activeGenre = null;
+    let currentPage = 1;
+    const BOOKS_PER_PAGE = 9;
+
+    function saveBooks() {
+      localStorage.setItem("books", JSON.stringify(books)); // Armazenamento separado de livros
+    }
+
+    function getFilteredBooks() {
+      return books.filter(book => {
+        if (activeTab === "favorites" && !book.favorite) return false;
+        if (activeTab === "read" && book.status !== "read") return false;
+        if (activeTab === "reading" && book.status !== "reading") return false;
+        if (activeTab === "wantToRead" && book.status !== "wantToRead") return false;
+        if (searchInput.value && !book.title.toLowerCase().includes(searchInput.value.toLowerCase())) return false;
+        if (activeGenre && book.genre !== activeGenre) return false;
+        return true;
+      });
+    }
+
+    function renderBooks() {
+      const list = document.getElementById("bookList");
+      const genreTags = new Set();
+      const filtered = getFilteredBooks();
+      const startIndex = (currentPage - 1) * BOOKS_PER_PAGE;
+      const paginated = filtered.slice(startIndex, startIndex + BOOKS_PER_PAGE);
+
+      list.innerHTML = "";
+
+      paginated.forEach(book => {
+        genreTags.add(book.genre);
+        const div = document.createElement("div");
+        div.className = "book-card";
+        div.innerHTML = `
+          <img src="${book.image}" alt="${book.title}">
+          <h4>${book.title}</h4>
+          <p><strong>Autor:</strong> ${book.author}</p>
+          <p><strong>Gênero:</strong> ${book.genre}</p>
+          <p><strong>Páginas:</strong> ${book.pages}</p>
+          <p class="stars">${"★".repeat(book.rating)}${"☆".repeat(5 - book.rating)}</p>
+          <div class="actions">
+            <button onclick="toggleFavorite(${book.id})">❤️</button>
+            <button onclick="markStatus(${book.id}, 'read')">✔️ Lido</button>
+            <button onclick="markStatus(${book.id}, 'reading')">📖 Lendo</button>
+            <button onclick="markStatus(${book.id}, 'wantToRead')">📌 Quero Ler</button>
+            <button onclick="editBook(${book.id})">✏️</button>
+            <button onclick="deleteBook(${book.id})">🗑️</button>
+            <button onclick="window.location.href = '${book.link}'">Saiba Mais</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      document.getElementById("readCount").innerText = books.filter(b => b.status === "read").length;
+      document.getElementById("readingCount").innerText = books.filter(b => b.status === "reading").length;
+      document.getElementById("wantToReadCount").innerText = books.filter(b => b.status === "wantToRead").length;
+
+      renderPagination(filtered.length);
+      renderGenres();
+    }
+
+    function renderGenres() {
+      const container = document.getElementById("genreTags");
+      const genres = [...new Set(books.map(b => b.genre))];
+      container.innerHTML = "";
+
+      if (activeGenre) {
+        const clear = document.createElement("span");
+        clear.textContent = "❌ Limpar Filtro";
+        clear.style.background = "#e74c3c";
+        clear.style.color = "#fff";
+        clear.onclick = () => {
+          activeGenre = null;
+          currentPage = 1;
+          renderBooks();
+        };
+        container.appendChild(clear);
+      }
+
+      genres.forEach(g => {
+        const span = document.createElement("span");
+        span.textContent = g;
+        span.onclick = () => {
+          activeGenre = g;
+          searchInput.value = "";
+          currentPage = 1;
+          renderBooks();
+        };
+        container.appendChild(span);
+      });
+    }
+
+    function renderPagination(totalBooks) {
+      const pagination = document.getElementById("pagination");
+      const totalPages = Math.ceil(totalBooks / BOOKS_PER_PAGE);
+      pagination.innerHTML = "";
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add("active");
+        btn.onclick = () => {
+          currentPage = i;
+          renderBooks();
+        };
+        pagination.appendChild(btn);
+      }
+    }
+
+    function saveBook() {
+      const id = document.getElementById("editId").value;
+      const book = {
+        id: id ? Number(id) : Date.now(),
+        title: document.getElementById("title").value,
+        author: document.getElementById("author").value,
+        genre: document.getElementById("genre").value,
+        pages: document.getElementById("pages").value,
+        rating: parseInt(document.getElementById("rating").value),
+        image: document.getElementById("image").value,
+        link: document.getElementById("link").value,
+        favorite: false,
+        status: ""
+      };
+
+      if (id) {
+        const index = books.findIndex(b => b.id == id);
+        books[index] = { ...books[index], ...book };
+      } else {
+        books.push(book);
+      }
+
+      document.querySelectorAll(".add-form input").forEach(el => el.value = "");
+      document.getElementById("editId").value = "";
+      document.getElementById("addForm").style.display = "none";
+      saveBooks();
+      renderBooks();
+    }
+
+    function deleteBook(id) {
+      books = books.filter(b => b.id !== id);
+      saveBooks();
+      renderBooks();
+    }
+
+    function editBook(id) {
+      const book = books.find(b => b.id === id);
+      document.getElementById("editId").value = book.id;
+      document.getElementById("title").value = book.title;
+      document.getElementById("author").value = book.author;
+      document.getElementById("genre").value = book.genre;
+      document.getElementById("pages").value = book.pages;
+      document.getElementById("rating").value = book.rating;
+      document.getElementById("image").value = book.image;
+      document.getElementById("link").value = book.link;
+      document.getElementById("addForm").style.display = "block";
+    }
+
+    function toggleFavorite(id) {
+      const book = books.find(b => b.id === id);
+      book.favorite = !book.favorite;
+      saveBooks();
+      renderBooks();
+    }
+
+    function markStatus(id, status) {
+      const book = books.find(b => b.id === id);
+      book.status = status;
+      saveBooks();
+      renderBooks();
+    }
+
+    document.getElementById("searchInput").addEventListener("input", () => {
+      activeGenre = null;
+      currentPage = 1;
+      renderBooks();
+    });
+
+    document.querySelectorAll(".tabs button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeTab = btn.dataset.tab;
+        currentPage = 1;
+        renderBooks();
+      });
+    });
+
+    document.getElementById("addBookBtn").onclick = () => {
+      const form = document.getElementById("addForm");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    };
+
+    renderBooks(); // Render inicial
+  </script>
+</body>
+</html>
