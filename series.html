@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Meu Tracker de Filmes</title>
+  <title>Meu Tracker de Séries</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -145,19 +145,19 @@
 <body>
   <aside>
     <h2>Status</h2>
-    <p>🎬 Assistidos: <span id="watchedCount">0</span></p>
+    <p>✅ Assistidas: <span id="watchedCount">0</span></p>
     <p>📌 Quero Assistir: <span id="wantCount">0</span></p>
   </aside>
   <main>
     <div class="topbar">
-      <input type="text" id="searchInput" placeholder="Pesquisar filme..." />
-      <button id="addMovieBtn">➕ Adicionar Filme</button>
+      <input type="text" id="searchInput" placeholder="Pesquisar série..." />
+      <button id="addMovieBtn">➕ Adicionar Série</button>
     </div>
 
     <div class="tabs">
-      <button data-tab="all" class="active">Todos</button>
-      <button data-tab="favorites">Favoritos</button>
-      <button data-tab="watched">Assistidos</button>
+      <button data-tab="all" class="active">Todas</button>
+      <button data-tab="favorites">Favoritas</button>
+      <button data-tab="watched">Assistidas</button>
       <button data-tab="want">Quero Assistir</button>
     </div>
 
@@ -168,28 +168,29 @@
     <div class="genre-tags" id="genreTags"></div>
 
     <div class="add-form" id="addForm">
-      <h3>Adicionar / Editar Filme</h3>
+      <h3>Adicionar / Editar Série</h3>
       <input type="hidden" id="editId" />
       <input type="text" id="title" placeholder="Título" />
-      <input type="text" id="director" placeholder="Diretor" />
+      <input type="text" id="director" placeholder="Diretor(a)/Criador(a)" />
       <input type="text" id="genre" placeholder="Gênero" />
-      <input type="text" id="duration" placeholder="Duração (ex: 2h 10m)" />
+      <input type="text" id="duration" placeholder="Temporadas e Episódios (ex: 3 temp, 24 eps)" />
       <input type="number" id="rating" min="0" max="5" placeholder="Nota (0-5)" />
       <input type="text" id="image" placeholder="URL da imagem" />
-      <input type="url" id="link" placeholder="URL do Saiba Mais" /> <!-- Novo campo para o link -->
-      <button onclick="saveMovie()">Salvar Filme</button>
+      <input type="url" id="link" placeholder="URL do Saiba Mais" />
+      <button onclick="saveMovie()">Salvar Série</button>
     </div>
   </main>
 
   <script>
-    let movies = JSON.parse(localStorage.getItem("movies") || "[]");
+    const STORAGE_KEY = "seriesTracker";
+    let movies = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     let activeTab = "all";
     let activeGenre = null;
     let currentPage = 1;
     const MOVIES_PER_PAGE = 9;
 
     function saveMovies() {
-      localStorage.setItem("movies", JSON.stringify(movies));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(movies));
     }
 
     function getFilteredMovies() {
@@ -219,17 +220,17 @@
         div.innerHTML = `
           <img src="${movie.image}" alt="${movie.title}">
           <h4>${movie.title}</h4>
-          <p><strong>Diretor:</strong> ${movie.director}</p>
+          <p><strong>Criador:</strong> ${movie.director}</p>
           <p><strong>Gênero:</strong> ${movie.genre}</p>
-          <p><strong>Duração:</strong> ${movie.duration}</p>
+          <p><strong>Temporadas/Episódios:</strong> ${movie.duration}</p>
           <p class="stars">${"★".repeat(movie.rating)}${"☆".repeat(5 - movie.rating)}</p>
           <div class="actions">
             <button onclick="toggleFavorite(${movie.id})">❤️</button>
-            <button onclick="markStatus(${movie.id}, 'watched')">✔️ Assistido</button>
+            <button onclick="markStatus(${movie.id}, 'watched')">✔️ Assistida</button>
             <button onclick="markStatus(${movie.id}, 'want')">📌 Quero Assistir</button>
             <button onclick="editMovie(${movie.id})">✏️</button>
             <button onclick="deleteMovie(${movie.id})">🗑️</button>
-            <button onclick="window.location.href = '${movie.link}'">Saiba Mais</button> <!-- Usando o link -->
+            <button onclick="window.open('${movie.link}', '_blank')">Saiba Mais</button>
           </div>
         `;
         list.appendChild(div);
@@ -300,7 +301,7 @@
         duration: document.getElementById("duration").value,
         rating: parseInt(document.getElementById("rating").value),
         image: document.getElementById("image").value,
-        link: document.getElementById("link").value, // Novo campo link
+        link: document.getElementById("link").value,
         favorite: false,
         status: ""
       };
@@ -334,7 +335,7 @@
       document.getElementById("duration").value = movie.duration;
       document.getElementById("rating").value = movie.rating;
       document.getElementById("image").value = movie.image;
-      document.getElementById("link").value = movie.link; // Preenche o campo de link
+      document.getElementById("link").value = movie.link;
       document.getElementById("addForm").style.display = "block";
     }
 
@@ -353,7 +354,7 @@
     }
 
     document.getElementById("searchInput").addEventListener("input", () => {
-      activeGenre = null; // zera filtro por gênero ao pesquisar
+      activeGenre = null;
       currentPage = 1;
       renderMovies();
     });
@@ -373,7 +374,7 @@
       form.style.display = form.style.display === "none" ? "block" : "none";
     };
 
-    renderMovies(); // Initial render
+    renderMovies();
   </script>
 </body>
 </html>
