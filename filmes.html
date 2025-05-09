@@ -183,6 +183,7 @@
   <script>
     let movies = JSON.parse(localStorage.getItem("movies") || "[]");
     let activeTab = "all";
+    let activeGenre = null;
     let currentPage = 1;
     const MOVIES_PER_PAGE = 9;
 
@@ -196,6 +197,7 @@
         if (activeTab === "watched" && movie.status !== "watched") return false;
         if (activeTab === "want" && movie.status !== "want") return false;
         if (searchInput.value && !movie.title.toLowerCase().includes(searchInput.value.toLowerCase())) return false;
+        if (activeGenre && movie.genre !== activeGenre) return false;
         return true;
       });
     }
@@ -235,18 +237,33 @@
       document.getElementById("wantCount").innerText = movies.filter(m => m.status === "want").length;
 
       renderPagination(filtered.length);
-      renderGenres(filtered);
+      renderGenres();
     }
 
-    function renderGenres(filtered) {
+    function renderGenres() {
       const container = document.getElementById("genreTags");
-      const genres = [...new Set(filtered.map(m => m.genre))];
+      const genres = [...new Set(movies.map(m => m.genre))];
       container.innerHTML = "";
+
+      if (activeGenre) {
+        const clear = document.createElement("span");
+        clear.textContent = "❌ Limpar Filtro";
+        clear.style.background = "#e74c3c";
+        clear.style.color = "#fff";
+        clear.onclick = () => {
+          activeGenre = null;
+          currentPage = 1;
+          renderMovies();
+        };
+        container.appendChild(clear);
+      }
+
       genres.forEach(g => {
         const span = document.createElement("span");
         span.textContent = g;
         span.onclick = () => {
-          document.getElementById("searchInput").value = g;
+          activeGenre = g;
+          searchInput.value = "";
           currentPage = 1;
           renderMovies();
         };
@@ -332,6 +349,7 @@
     }
 
     document.getElementById("searchInput").addEventListener("input", () => {
+      activeGenre = null; // zera filtro por gênero ao pesquisar
       currentPage = 1;
       renderMovies();
     });
@@ -348,10 +366,10 @@
 
     document.getElementById("addMovieBtn").onclick = () => {
       const form = document.getElementById("addForm");
-      form.style.display = form.style.display === "block" ? "none" : "block";
+      form.style.display = form.style.display === "none" ? "block" : "none";
     };
 
-    renderMovies();
+    renderMovies(); // Initial render
   </script>
 </body>
 </html>
