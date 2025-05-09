@@ -1,0 +1,42 @@
+<!-- Container principal do footer -->
+<div style="background-color:#1a1a1a; color:white; padding:20px; font-family:sans-serif; font-size:14px;">
+
+  <!-- Logo ou nome da empresa -->
+  <div style="margin-bottom:10px;">
+    <strong style="font-size:18px;">Minha Empresa</strong>
+  </div>
+
+  <!-- Seção de links importantes -->
+  <div style="margin-bottom:15px;">
+    <!-- Você pode adicionar ou remover links aqui -->
+    <a href="#sobre" style="color:#cccccc; margin-right:15px; text-decoration:none;">Sobre</a>
+    <a href="#servicos" style="color:#cccccc; margin-right:15px; text-decoration:none;">Serviços</a>
+    <a href="#contato" style="color:#cccccc; margin-right:15px; text-decoration:none;">Contato</a>
+    <a href="#politica" style="color:#cccccc; text-decoration:none;">Política de Privacidade</a>
+  </div>
+
+  <!-- Informações de contato -->
+  <div style="margin-bottom:15px;">
+    📞 <a href="tel:+5511999999999" style="color:#cccccc; text-decoration:none;">(11) 99999-9999</a><br>
+    ✉️ <a href="mailto:contato@minhaempresa.com" style="color:#cccccc; text-decoration:none;">contato@minhaempresa.com</a><br>
+    📍 Rua Exemplo, 123 - São Paulo, SP
+  </div>
+
+  <!-- Redes sociais -->
+  <div style="margin-bottom:15px;">
+    <a href="https://instagram.com/minhaempresa" target="_blank" style="margin-right:10px; text-decoration:none;">
+      <img src="https://img.icons8.com/ios-filled/20/ffffff/instagram-new.png" alt="Instagram" style="vertical-align:middle;">
+    </a>
+    <a href="https://facebook.com/minhaempresa" target="_blank" style="margin-right:10px; text-decoration:none;">
+      <img src="https://img.icons8.com/ios-filled/20/ffffff/facebook-new.png" alt="Facebook" style="vertical-align:middle;">
+    </a>
+    <a href="https://linkedin.com/company/minhaempresa" target="_blank" style="text-decoration:none;">
+      <img src="https://img.icons8.com/ios-filled/20/ffffff/linkedin.png" alt="LinkedIn" style="vertical-align:middle;">
+    </a>
+  </div>
+
+  <!-- Rodapé legal -->
+  <div style="color:#777;">
+    © 2025 Minha Empresa. Todos os direitos reservados. | CNPJ: 00.000.000/0001-00
+  </div>
+</div>
