@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meu Tracker de Filmes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      display: flex;
+    }
+
+    aside {
+      width: 200px;
+      background: #2c3e50;
+      color: #fff;
+      padding: 20px;
+    }
+
+    aside h2 {
+      margin-top: 0;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tabs {
+      margin: 20px 0;
+    }
+
+    .tabs button {
+      margin-right: 10px;
+      padding: 8px 12px;
+      border: none;
+      background: #ccc;
+      cursor: pointer;
+    }
+
+    .tabs button.active {
+      background: #3498db;
+      color: white;
+    }
+
+    #movieList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .movie-card {
+      background: white;
+      padding: 10px;
+      width: 250px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 5px;
+      position: relative;
+    }
+
+    .movie-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .stars {
+      color: gold;
+    }
+
+    .movie-card button {
+      margin-top: 5px;
+      padding: 4px 8px;
+    }
+
+    .genre-tags {
+      margin-top: 20px;
+    }
+
+    .genre-tags span {
+      background: #ddd;
+      padding: 5px 10px;
+      margin-right: 5px;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .add-form {
+      margin-top: 20px;
+      background: #eee;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .add-form input {
+      margin-bottom: 10px;
+      display: block;
+      width: 100%;
+      padding: 5px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .pagination {
+      margin-top: 20px;
+    }
+
+    .pagination button {
+      padding: 5px 10px;
+      margin-right: 5px;
+      border: none;
+      background: #ccc;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background: #3498db;
+      color: white;
+    }
+
+    #addMovieBtn {
+      padding: 10px;
+      background: #27ae60;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>Status</h2>
+    <p>🎬 Assistidos: <span id="watchedCount">0</span></p>
+    <p>📌 Quero Assistir: <span id="wantCount">0</span></p>
+  </aside>
+  <main>
+    <div class="topbar">
+      <input type="text" id="searchInput" placeholder="Pesquisar filme..." />
+      <button id="addMovieBtn">➕ Adicionar Filme</button>
+    </div>
+
+    <div class="tabs">
+      <button data-tab="all" class="active">Todos</button>
+      <button data-tab="favorites">Favoritos</button>
+      <button data-tab="watched">Assistidos</button>
+      <button data-tab="want">Quero Assistir</button>
+    </div>
+
+    <div id="movieList"></div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <div class="genre-tags" id="genreTags"></div>
+
+    <div class="add-form" id="addForm">
+      <h3>Adicionar / Editar Filme</h3>
+      <input type="hidden" id="editId" />
+      <input type="text" id="title" placeholder="Título" />
+      <input type="text" id="director" placeholder="Diretor" />
+      <input type="text" id="genre" placeholder="Gênero" />
+      <input type="text" id="duration" placeholder="Duração (ex: 2h 10m)" />
+      <input type="number" id="rating" min="0" max="5" placeholder="Nota (0-5)" />
+      <input type="text" id="image" placeholder="URL da imagem" />
+      <input type="url" id="link" placeholder="URL do Saiba Mais" /> <!-- Novo campo para o link -->
+      <button onclick="saveMovie()">Salvar Filme</button>
+    </div>
+  </main>
+
+  <script>
+    let movies = JSON.parse(localStorage.getItem("movies") || "[]");
+    let activeTab = "all";
+    let activeGenre = null;
+    let currentPage = 1;
+    const MOVIES_PER_PAGE = 9;
+
+    function saveMovies() {
+      localStorage.setItem("movies", JSON.stringify(movies));
+    }
+
+    function getFilteredMovies() {
+      return movies.filter(movie => {
+        if (activeTab === "favorites" && !movie.favorite) return false;
+        if (activeTab === "watched" && movie.status !== "watched") return false;
+        if (activeTab === "want" && movie.status !== "want") return false;
+        if (searchInput.value && !movie.title.toLowerCase().includes(searchInput.value.toLowerCase())) return false;
+        if (activeGenre && movie.genre !== activeGenre) return false;
+        return true;
+      });
+    }
+
+    function renderMovies() {
+      const list = document.getElementById("movieList");
+      const genreTags = new Set();
+      const filtered = getFilteredMovies();
+      const startIndex = (currentPage - 1) * MOVIES_PER_PAGE;
+      const paginated = filtered.slice(startIndex, startIndex + MOVIES_PER_PAGE);
+
+      list.innerHTML = "";
+
+      paginated.forEach(movie => {
+        genreTags.add(movie.genre);
+        const div = document.createElement("div");
+        div.className = "movie-card";
+        div.innerHTML = `
+          <img src="${movie.image}" alt="${movie.title}">
+          <h4>${movie.title}</h4>
+          <p><strong>Diretor:</strong> ${movie.director}</p>
+          <p><strong>Gênero:</strong> ${movie.genre}</p>
+          <p><strong>Duração:</strong> ${movie.duration}</p>
+          <p class="stars">${"★".repeat(movie.rating)}${"☆".repeat(5 - movie.rating)}</p>
+          <div class="actions">
+            <button onclick="toggleFavorite(${movie.id})">❤️</button>
+            <button onclick="markStatus(${movie.id}, 'watched')">✔️ Assistido</button>
+            <button onclick="markStatus(${movie.id}, 'want')">📌 Quero Assistir</button>
+            <button onclick="editMovie(${movie.id})">✏️</button>
+            <button onclick="deleteMovie(${movie.id})">🗑️</button>
+            <button onclick="window.location.href = '${movie.link}'">Saiba Mais</button> <!-- Usando o link -->
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      document.getElementById("watchedCount").innerText = movies.filter(m => m.status === "watched").length;
+      document.getElementById("wantCount").innerText = movies.filter(m => m.status === "want").length;
+
+      renderPagination(filtered.length);
+      renderGenres();
+    }
+
+    function renderGenres() {
+      const container = document.getElementById("genreTags");
+      const genres = [...new Set(movies.map(m => m.genre))];
+      container.innerHTML = "";
+
+      if (activeGenre) {
+        const clear = document.createElement("span");
+        clear.textContent = "❌ Limpar Filtro";
+        clear.style.background = "#e74c3c";
+        clear.style.color = "#fff";
+        clear.onclick = () => {
+          activeGenre = null;
+          currentPage = 1;
+          renderMovies();
+        };
+        container.appendChild(clear);
+      }
+
+      genres.forEach(g => {
+        const span = document.createElement("span");
+        span.textContent = g;
+        span.onclick = () => {
+          activeGenre = g;
+          searchInput.value = "";
+          currentPage = 1;
+          renderMovies();
+        };
+        container.appendChild(span);
+      });
+    }
+
+    function renderPagination(totalMovies) {
+      const pagination = document.getElementById("pagination");
+      const totalPages = Math.ceil(totalMovies / MOVIES_PER_PAGE);
+      pagination.innerHTML = "";
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add("active");
+        btn.onclick = () => {
+          currentPage = i;
+          renderMovies();
+        };
+        pagination.appendChild(btn);
+      }
+    }
+
+    function saveMovie() {
+      const id = document.getElementById("editId").value;
+      const movie = {
+        id: id ? Number(id) : Date.now(),
+        title: document.getElementById("title").value,
+        director: document.getElementById("director").value,
+        genre: document.getElementById("genre").value,
+        duration: document.getElementById("duration").value,
+        rating: parseInt(document.getElementById("rating").value),
+        image: document.getElementById("image").value,
+        link: document.getElementById("link").value, // Novo campo link
+        favorite: false,
+        status: ""
+      };
+
+      if (id) {
+        const index = movies.findIndex(m => m.id == id);
+        movies[index] = { ...movies[index], ...movie };
+      } else {
+        movies.push(movie);
+      }
+
+      document.querySelectorAll(".add-form input").forEach(el => el.value = "");
+      document.getElementById("editId").value = "";
+      document.getElementById("addForm").style.display = "none";
+      saveMovies();
+      renderMovies();
+    }
+
+    function deleteMovie(id) {
+      movies = movies.filter(m => m.id !== id);
+      saveMovies();
+      renderMovies();
+    }
+
+    function editMovie(id) {
+      const movie = movies.find(m => m.id === id);
+      document.getElementById("editId").value = movie.id;
+      document.getElementById("title").value = movie.title;
+      document.getElementById("director").value = movie.director;
+      document.getElementById("genre").value = movie.genre;
+      document.getElementById("duration").value = movie.duration;
+      document.getElementById("rating").value = movie.rating;
+      document.getElementById("image").value = movie.image;
+      document.getElementById("link").value = movie.link; // Preenche o campo de link
+      document.getElementById("addForm").style.display = "block";
+    }
+
+    function toggleFavorite(id) {
+      const movie = movies.find(m => m.id === id);
+      movie.favorite = !movie.favorite;
+      saveMovies();
+      renderMovies();
+    }
+
+    function markStatus(id, status) {
+      const movie = movies.find(m => m.id === id);
+      movie.status = status;
+      saveMovies();
+      renderMovies();
+    }
+
+    document.getElementById("searchInput").addEventListener("input", () => {
+      activeGenre = null; // zera filtro por gênero ao pesquisar
+      currentPage = 1;
+      renderMovies();
+    });
+
+    document.querySelectorAll(".tabs button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeTab = btn.dataset.tab;
+        currentPage = 1;
+        renderMovies();
+      });
+    });
+
+    document.getElementById("addMovieBtn").onclick = () => {
+      const form = document.getElementById("addForm");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    };
+
+    renderMovies(); // Initial render
+  </script>
+</body>
+</html>
