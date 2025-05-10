@@ -52,35 +52,45 @@
       color: white;
     }
 
-    #movieList {
+    #seriesList {
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
     }
 
-    .movie-card {
+    .series-card {
       background: white;
-      padding: 10px;
-      width: 250px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      border-radius: 5px;
-      position: relative;
+      padding: 6px;
+      width: 180px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.2;
     }
 
-    .movie-card img {
+    .series-card img {
       width: 100%;
-      height: 150px;
+      height: 90px;
       object-fit: cover;
-      border-radius: 5px;
+      border-radius: 4px;
     }
 
-    .stars {
-      color: gold;
+    .series-card h4 {
+      margin: 4px 0 2px;
+      font-size: 14px;
     }
 
-    .movie-card button {
-      margin-top: 5px;
-      padding: 4px 8px;
+    .series-card p {
+      margin: 2px 0;
+    }
+
+    .series-card .actions {
+      margin-top: 4px;
+    }
+
+    .series-card button {
+      padding: 2px 5px;
+      font-size: 11px;
     }
 
     .genre-tags {
@@ -112,7 +122,7 @@
 
     .actions {
       display: flex;
-      gap: 5px;
+      gap: 4px;
       flex-wrap: wrap;
     }
 
@@ -133,7 +143,7 @@
       color: white;
     }
 
-    #addMovieBtn {
+    #addSeriesBtn {
       padding: 10px;
       background: #27ae60;
       color: white;
@@ -145,25 +155,25 @@
 <body>
   <aside>
     <h2>Status</h2>
-    <p>🎬 Assistidos: <span id="watchedCount">0</span></p>
-    <p>👀 Assistindo: <span id="watchingCount">0</span></p>
-    <p>📌 Quero Assistir: <span id="wantCount">0</span></p>
+    <p>📺 Assistidas: <span id="watchedCount">0</span></p>
+    <p>📜 Assistindo: <span id="watchingCount">0</span></p>
+    <p>📌 Quero Assistir: <span id="wantToWatchCount">0</span></p>
   </aside>
   <main>
     <div class="topbar">
       <input type="text" id="searchInput" placeholder="Pesquisar série..." />
-      <button id="addMovieBtn">➕ Adicionar Série</button>
+      <button id="addSeriesBtn">➕ Adicionar Série</button>
     </div>
 
     <div class="tabs">
-      <button data-tab="all" class="active">Todas</button>
+      <button data-tab="all" class="active">Todos</button>
       <button data-tab="favorites">Favoritas</button>
       <button data-tab="watched">Assistidas</button>
       <button data-tab="watching">Assistindo</button>
-      <button data-tab="want">Quero Assistir</button>
+      <button data-tab="wantToWatch">Quero Assistir</button>
     </div>
 
-    <div id="movieList"></div>
+    <div id="seriesList"></div>
 
     <div class="pagination" id="pagination"></div>
 
@@ -173,75 +183,75 @@
       <h3>Adicionar / Editar Série</h3>
       <input type="hidden" id="editId" />
       <input type="text" id="title" placeholder="Título" />
-      <input type="text" id="director" placeholder="Diretor" />
+      <input type="text" id="creator" placeholder="Criador" />
       <input type="text" id="genre" placeholder="Gênero" />
-      <input type="text" id="duration" placeholder="Temporadas / Episódios" />
+      <input type="number" id="seasons" placeholder="Número de Temporadas" />
       <input type="number" id="rating" min="0" max="5" placeholder="Nota (0-5)" />
       <input type="text" id="image" placeholder="URL da imagem" />
       <input type="url" id="link" placeholder="URL do Saiba Mais" />
-      <button onclick="saveMovie()">Salvar Série</button>
+      <button onclick="saveSeries()">Salvar Série</button>
     </div>
   </main>
 
   <script>
-    let movies = JSON.parse(localStorage.getItem("series") || "[]");
+    let series = JSON.parse(localStorage.getItem("series") || "[]");
     let activeTab = "all";
     let activeGenre = null;
     let currentPage = 1;
-    const MOVIES_PER_PAGE = 9;
+    const SERIES_PER_PAGE = 9;
 
-    function saveMovies() {
-      localStorage.setItem("series", JSON.stringify(movies));
+    function saveSeriesData() {
+      localStorage.setItem("series", JSON.stringify(series));
     }
 
-    function getFilteredMovies() {
-      return movies.filter(movie => {
-        if (activeTab === "favorites" && !movie.favorite) return false;
-        if (activeTab === "watched" && movie.status !== "watched") return false;
-        if (activeTab === "watching" && movie.status !== "watching") return false;
-        if (activeTab === "want" && movie.status !== "want") return false;
-        if (searchInput.value && !movie.title.toLowerCase().includes(searchInput.value.toLowerCase())) return false;
-        if (activeGenre && movie.genre !== activeGenre) return false;
+    function getFilteredSeries() {
+      return series.filter(s => {
+        if (activeTab === "favorites" && !s.favorite) return false;
+        if (activeTab === "watched" && s.status !== "watched") return false;
+        if (activeTab === "watching" && s.status !== "watching") return false;
+        if (activeTab === "wantToWatch" && s.status !== "wantToWatch") return false;
+        if (searchInput.value && !s.title.toLowerCase().includes(searchInput.value.toLowerCase())) return false;
+        if (activeGenre && s.genre !== activeGenre) return false;
         return true;
       });
     }
 
-    function renderMovies() {
-      const list = document.getElementById("movieList");
+    function renderSeries() {
+      const list = document.getElementById("seriesList");
       const genreTags = new Set();
-      const filtered = getFilteredMovies();
-      const startIndex = (currentPage - 1) * MOVIES_PER_PAGE;
-      const paginated = filtered.slice(startIndex, startIndex + MOVIES_PER_PAGE);
+      const filtered = getFilteredSeries();
+      const startIndex = (currentPage - 1) * SERIES_PER_PAGE;
+      const paginated = filtered.slice(startIndex, startIndex + SERIES_PER_PAGE);
 
       list.innerHTML = "";
 
-      paginated.forEach(movie => {
-        genreTags.add(movie.genre);
+      paginated.forEach(s => {
+        genreTags.add(s.genre);
         const div = document.createElement("div");
-        div.className = "movie-card";
+        div.className = "series-card";
         div.innerHTML = `
-          <img src="${movie.image}" alt="${movie.title}">
-          <h4>${movie.title}</h4>
-          <p><strong>Diretor:</strong> ${movie.director}</p>
-          <p><strong>Gênero:</strong> ${movie.genre}</p>
-          <p><strong>Temporadas / Episódios:</strong> ${movie.duration}</p>
-          <p class="stars">${"★".repeat(movie.rating)}${"☆".repeat(5 - movie.rating)}</p>
+          <img src="${s.image}" alt="${s.title}">
+          <h4>${s.title}</h4>
+          <p><strong>Criador:</strong> ${s.creator}</p>
+          <p><strong>Gênero:</strong> ${s.genre}</p>
+          <p><strong>Temporadas:</strong> ${s.seasons}</p>
+          <p class="stars">${"★".repeat(s.rating)}${"☆".repeat(5 - s.rating)}</p>
           <div class="actions">
-            <button onclick="toggleFavorite(${movie.id})">❤️</button>
-            <button onclick="markStatus(${movie.id}, 'watched')">✔️ Assistida</button>
-            <button onclick="markStatus(${movie.id}, 'watching')">👀 Assistindo</button>
-            <button onclick="markStatus(${movie.id}, 'want')">📌 Quero Assistir</button>
-            <button onclick="editMovie(${movie.id})">✏️</button>
-            <button onclick="deleteMovie(${movie.id})">🗑️</button>
-            <a href="${movie.link}" target="_blank" style="padding: 4px 8px; background: #ccc; text-decoration: none; color: black; border-radius: 3px;">Saiba Mais</a>
+            <button onclick="toggleFavorite(${s.id})">❤️</button>
+            <button onclick="markStatus(${s.id}, 'watched')">✔️</button>
+            <button onclick="markStatus(${s.id}, 'watching')">📖</button>
+            <button onclick="markStatus(${s.id}, 'wantToWatch')">📌</button>
+            <button onclick="editSeries(${s.id})">✏️</button>
+            <button onclick="deleteSeries(${s.id})">🗑️</button>
+            <button onclick="window.open('${s.link}', '_blank')">🔗</button>
           </div>
         `;
         list.appendChild(div);
       });
 
-      document.getElementById("watchedCount").innerText = movies.filter(m => m.status === "watched").length;
-      document.getElementById("watchingCount").innerText = movies.filter(m => m.status === "watching").length;
-      document.getElementById("wantCount").innerText = movies.filter(m => m.status === "want").length;
+      document.getElementById("watchedCount").innerText = series.filter(s => s.status === "watched").length;
+      document.getElementById("watchingCount").innerText = series.filter(s => s.status === "watching").length;
+      document.getElementById("wantToWatchCount").innerText = series.filter(s => s.status === "wantToWatch").length;
 
       renderPagination(filtered.length);
       renderGenres();
@@ -249,7 +259,7 @@
 
     function renderGenres() {
       const container = document.getElementById("genreTags");
-      const genres = [...new Set(movies.map(m => m.genre))];
+      const genres = [...new Set(series.map(s => s.genre))];
       container.innerHTML = "";
 
       if (activeGenre) {
@@ -260,7 +270,7 @@
         clear.onclick = () => {
           activeGenre = null;
           currentPage = 1;
-          renderMovies();
+          renderSeries();
         };
         container.appendChild(clear);
       }
@@ -272,15 +282,15 @@
           activeGenre = g;
           searchInput.value = "";
           currentPage = 1;
-          renderMovies();
+          renderSeries();
         };
         container.appendChild(span);
       });
     }
 
-    function renderPagination(totalMovies) {
+    function renderPagination(totalSeries) {
       const pagination = document.getElementById("pagination");
-      const totalPages = Math.ceil(totalMovies / MOVIES_PER_PAGE);
+      const totalPages = Math.ceil(totalSeries / SERIES_PER_PAGE);
       pagination.innerHTML = "";
 
       for (let i = 1; i <= totalPages; i++) {
@@ -289,20 +299,20 @@
         if (i === currentPage) btn.classList.add("active");
         btn.onclick = () => {
           currentPage = i;
-          renderMovies();
+          renderSeries();
         };
         pagination.appendChild(btn);
       }
     }
 
-    function saveMovie() {
+    function saveSeries() {
       const id = document.getElementById("editId").value;
-      const movie = {
+      const seriesObj = {
         id: id ? Number(id) : Date.now(),
         title: document.getElementById("title").value,
-        director: document.getElementById("director").value,
+        creator: document.getElementById("creator").value,
         genre: document.getElementById("genre").value,
-        duration: document.getElementById("duration").value,
+        seasons: document.getElementById("seasons").value,
         rating: parseInt(document.getElementById("rating").value),
         image: document.getElementById("image").value,
         link: document.getElementById("link").value,
@@ -311,56 +321,56 @@
       };
 
       if (id) {
-        const index = movies.findIndex(m => m.id == id);
-        movies[index] = { ...movies[index], ...movie };
+        const index = series.findIndex(s => s.id == id);
+        series[index] = { ...series[index], ...seriesObj };
       } else {
-        movies.push(movie);
+        series.push(seriesObj);
       }
 
       document.querySelectorAll(".add-form input").forEach(el => el.value = "");
       document.getElementById("editId").value = "";
       document.getElementById("addForm").style.display = "none";
-      saveMovies();
-      renderMovies();
+      saveSeriesData();
+      renderSeries();
     }
 
-    function deleteMovie(id) {
-      movies = movies.filter(m => m.id !== id);
-      saveMovies();
-      renderMovies();
+    function deleteSeries(id) {
+      series = series.filter(s => s.id !== id);
+      saveSeriesData();
+      renderSeries();
     }
 
-    function editMovie(id) {
-      const movie = movies.find(m => m.id === id);
-      document.getElementById("editId").value = movie.id;
-      document.getElementById("title").value = movie.title;
-      document.getElementById("director").value = movie.director;
-      document.getElementById("genre").value = movie.genre;
-      document.getElementById("duration").value = movie.duration;
-      document.getElementById("rating").value = movie.rating;
-      document.getElementById("image").value = movie.image;
-      document.getElementById("link").value = movie.link;
+    function editSeries(id) {
+      const s = series.find(s => s.id === id);
+      document.getElementById("editId").value = s.id;
+      document.getElementById("title").value = s.title;
+      document.getElementById("creator").value = s.creator;
+      document.getElementById("genre").value = s.genre;
+      document.getElementById("seasons").value = s.seasons;
+      document.getElementById("rating").value = s.rating;
+      document.getElementById("image").value = s.image;
+      document.getElementById("link").value = s.link;
       document.getElementById("addForm").style.display = "block";
     }
 
     function toggleFavorite(id) {
-      const movie = movies.find(m => m.id === id);
-      movie.favorite = !movie.favorite;
-      saveMovies();
-      renderMovies();
+      const s = series.find(s => s.id === id);
+      s.favorite = !s.favorite;
+      saveSeriesData();
+      renderSeries();
     }
 
     function markStatus(id, status) {
-      const movie = movies.find(m => m.id === id);
-      movie.status = status;
-      saveMovies();
-      renderMovies();
+      const s = series.find(s => s.id === id);
+      s.status = status;
+      saveSeriesData();
+      renderSeries();
     }
 
     document.getElementById("searchInput").addEventListener("input", () => {
       activeGenre = null;
       currentPage = 1;
-      renderMovies();
+      renderSeries();
     });
 
     document.querySelectorAll(".tabs button").forEach(btn => {
@@ -369,16 +379,16 @@
         btn.classList.add("active");
         activeTab = btn.dataset.tab;
         currentPage = 1;
-        renderMovies();
+        renderSeries();
       });
     });
 
-    document.getElementById("addMovieBtn").onclick = () => {
+    document.getElementById("addSeriesBtn").onclick = () => {
       const form = document.getElementById("addForm");
       form.style.display = form.style.display === "none" ? "block" : "none";
     };
 
-    renderMovies(); // Render inicial
+    renderSeries();
   </script>
 </body>
 </html>
