@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Meu Tracker de Livros</title>
   <style>
-    /* Estilos já definidos para manter consistência com os outros widgets */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -61,24 +60,37 @@
 
     .book-card {
       background: white;
-      padding: 8px;
-      width: 180px; /* antes 250px */
+      padding: 6px;
+      width: 180px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       border-radius: 4px;
-      font-size: 14px;
+      font-size: 13px;
+      line-height: 1.2;
     }
 
     .book-card img {
       width: 100%;
-      height: 110px; /* antes 150px */
+      height: 90px;
       object-fit: cover;
       border-radius: 4px;
     }
 
+    .book-card h4 {
+      margin: 4px 0 2px;
+      font-size: 14px;
+    }
+
+    .book-card p {
+      margin: 2px 0;
+    }
+
+    .book-card .actions {
+      margin-top: 4px;
+    }
 
     .book-card button {
-      padding: 2px 6px;
-      font-size: 12px;
+      padding: 2px 5px;
+      font-size: 11px;
     }
 
     .genre-tags {
@@ -110,7 +122,7 @@
 
     .actions {
       display: flex;
-      gap: 5px;
+      gap: 4px;
       flex-wrap: wrap;
     }
 
@@ -176,13 +188,12 @@
       <input type="text" id="pages" placeholder="Número de Páginas" />
       <input type="number" id="rating" min="0" max="5" placeholder="Nota (0-5)" />
       <input type="text" id="image" placeholder="URL da imagem" />
-      <input type="url" id="link" placeholder="URL do Saiba Mais" /> <!-- Novo campo para o link -->
+      <input type="url" id="link" placeholder="URL do Saiba Mais" />
       <button onclick="saveBook()">Salvar Livro</button>
     </div>
   </main>
 
   <script>
-    // Usando 'books' para armazenar no localStorage
     let books = JSON.parse(localStorage.getItem("books") || "[]");
     let activeTab = "all";
     let activeGenre = null;
@@ -190,7 +201,7 @@
     const BOOKS_PER_PAGE = 9;
 
     function saveBooks() {
-      localStorage.setItem("books", JSON.stringify(books)); // Armazenamento separado de livros
+      localStorage.setItem("books", JSON.stringify(books));
     }
 
     function getFilteredBooks() {
@@ -227,12 +238,12 @@
           <p class="stars">${"★".repeat(book.rating)}${"☆".repeat(5 - book.rating)}</p>
           <div class="actions">
             <button onclick="toggleFavorite(${book.id})">❤️</button>
-            <button onclick="markStatus(${book.id}, 'read')">✔️ Lido</button>
-            <button onclick="markStatus(${book.id}, 'reading')">📖 Lendo</button>
-            <button onclick="markStatus(${book.id}, 'wantToRead')">📌 Quero Ler</button>
+            <button onclick="markStatus(${book.id}, 'read')">✔️</button>
+            <button onclick="markStatus(${book.id}, 'reading')">📖</button>
+            <button onclick="markStatus(${book.id}, 'wantToRead')">📌</button>
             <button onclick="editBook(${book.id})">✏️</button>
             <button onclick="deleteBook(${book.id})">🗑️</button>
-            <button onclick="window.location.href = '${book.link}'">Saiba Mais</button>
+            <button onclick="window.open('${book.link}', '_blank')">🔗</button>
           </div>
         `;
         list.appendChild(div);
@@ -377,7 +388,7 @@
       form.style.display = form.style.display === "none" ? "block" : "none";
     };
 
-    renderBooks(); // Render inicial
+    renderBooks();
   </script>
 </body>
 </html>
