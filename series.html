@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Meu Tracker de Séries</title>
   <style>
-    /* Estilos já definidos previamente */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -179,13 +178,12 @@
       <input type="text" id="duration" placeholder="Temporadas / Episódios" />
       <input type="number" id="rating" min="0" max="5" placeholder="Nota (0-5)" />
       <input type="text" id="image" placeholder="URL da imagem" />
-      <input type="url" id="link" placeholder="URL do Saiba Mais" /> <!-- Novo campo para o link -->
+      <input type="url" id="link" placeholder="URL do Saiba Mais" />
       <button onclick="saveMovie()">Salvar Série</button>
     </div>
   </main>
 
   <script>
-    // Defina uma chave única para armazenar séries no localStorage
     let movies = JSON.parse(localStorage.getItem("series") || "[]");
     let activeTab = "all";
     let activeGenre = null;
@@ -193,7 +191,7 @@
     const MOVIES_PER_PAGE = 9;
 
     function saveMovies() {
-      localStorage.setItem("series", JSON.stringify(movies)); // Armazenamento separado de séries
+      localStorage.setItem("series", JSON.stringify(movies));
     }
 
     function getFilteredMovies() {
@@ -235,7 +233,7 @@
             <button onclick="markStatus(${movie.id}, 'want')">📌 Quero Assistir</button>
             <button onclick="editMovie(${movie.id})">✏️</button>
             <button onclick="deleteMovie(${movie.id})">🗑️</button>
-            <button onclick="window.location.href = '${movie.link}'">Saiba Mais</button>
+            <a href="${movie.link}" target="_blank" style="padding: 4px 8px; background: #ccc; text-decoration: none; color: black; border-radius: 3px;">Saiba Mais</a>
           </div>
         `;
         list.appendChild(div);
