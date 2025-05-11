@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lista de Desejos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #191919;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    #controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #wishlist {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      max-width: 960px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .card h3 {
+      margin: 8px 0 4px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .card p {
+      margin: 3px 0;
+      color: #555;
+      text-align: center;
+    }
+
+    .card .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .card .actions button {
+      background-color: #007BFF;
+      font-size: 12px;
+      padding: 6px 10px;
+    }
+
+    .card .actions button:last-child {
+      background-color: #dc3545;
+    }
+
+    #pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #pagination button {
+      margin: 0 5px;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-content input {
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    .modal-content button {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Minha Lista de Desejos</h1>
+
+<div id="controls">
+  <button onclick="openModal()">Adicionar Item</button>
+</div>
+
+<div id="wishlist"></div>
+
+<div id="pagination"></div>
+
+<!-- Modal -->
+<div id="itemModal" class="modal">
+  <div class="modal-content">
+    <input type="text" id="name" placeholder="Nome do item" required />
+    <input type="url" id="image" placeholder="URL da imagem" required />
+    <input type="url" id="link" placeholder="Link de compra" required />
+    <input type="text" id="type" placeholder="Tipo (ex: Eletrônico)" required />
+    <input type="text" id="price" placeholder="Valor (ex: R$ 199,90)" required />
+    <input type="number" id="priority" placeholder="Prioridade (menor = mais urgente)" required />
+    <button onclick="saveItem()">Salvar</button>
+    <button onclick="closeModal()" style="background-color: gray;">Cancelar</button>
+  </div>
+</div>
+
+<script>
+  let items = JSON.parse(localStorage.getItem('wishlist')) || [];
+  let currentPage = 1;
+  const itemsPerPage = 9;
+  let editIndex = null;
+
+  function saveToStorage() {
+    localStorage.setItem('wishlist', JSON.stringify(items));
+  }
+
+  function renderList() {
+    const list = document.getElementById('wishlist');
+    list.innerHTML = '';
+
+    const sorted = [...items].sort((a, b) => a.priority - b.priority);
+    const start = (currentPage - 1) * itemsPerPage;
+    const pageItems = sorted.slice(start, start + itemsPerPage);
+
+    pageItems.forEach((item, i) => {
+      const index = start + i;
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      card.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" />
+        <h3>${index + 1}º - ${item.name}</h3>
+        <p>Tipo: ${item.type}</p>
+        <p>Valor: ${item.price}</p>
+        <div class="actions">
+          <button onclick="editItem(${index})">Editar</button>
+          <button onclick="deleteItem(${index})">Excluir</button>
+        </div>
+      `;
+
+      list.appendChild(card);
+    });
+
+    renderPagination();
+  }
+
+  function renderPagination() {
+    const totalPages = Math.ceil(items.length / itemsPerPage);
+    const container = document.getElementById('pagination');
+    container.innerHTML = '';
+
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      if (i === currentPage) btn.style.fontWeight = 'bold';
+      btn.onclick = () => {
+        currentPage = i;
+        renderList();
+      };
+      container.appendChild(btn);
+    }
+  }
+
+  function openModal() {
+    document.getElementById('itemModal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('itemModal').style.display = 'none';
+    document.querySelectorAll('#itemModal input').forEach(i => i.value = '');
+    editIndex = null;
+  }
+
+  function saveItem() {
+    const name = document.getElementById('name').value.trim();
+    const image = document.getElementById('image').value.trim();
+    const link = document.getElementById('link').value.trim();
+    const type = document.getElementById('type').value.trim();
+    const price = document.getElementById('price').value.trim();
+    const priority = parseInt(document.getElementById('priority').value);
+
+    if (!name || !image || !link || !type || !price || isNaN(priority)) {
+      return alert('Preencha todos os campos corretamente.');
+    }
+
+    const newItem = { name, image, link, type, price, priority };
+
+    if (editIndex !== null) {
+      items[editIndex] = newItem;
+    } else {
+      items.push(newItem);
+    }
+
+    saveToStorage();
+    closeModal();
+    renderList();
+  }
+
+  function deleteItem(index) {
+    if (confirm("Tem certeza que deseja excluir este item?")) {
+      items.splice(index, 1);
+      saveToStorage();
+      renderList();
+    }
+  }
+
+  function editItem(index) {
+    const item = items[index];
+    document.getElementById('name').value = item.name;
+    document.getElementById('image').value = item.image;
+    document.getElementById('link').value = item.link;
+    document.getElementById('type').value = item.type;
+    document.getElementById('price').value = item.price;
+    document.getElementById('priority').value = item.priority;
+    editIndex = index;
+    openModal();
+  }
+
+  renderList();
+</script>
+
+</body>
+</html>
