@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Compras Recentes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f8f8;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    #carousel-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .carousel {
+      display: flex;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      width: 100%;
+    }
+
+    .card {
+      flex: 0 0 auto;
+      width: 200px;
+      margin: 0 10px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 10px;
+      text-align: center;
+    }
+
+    .card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .card h3 {
+      font-size: 16px;
+      margin: 4px 0;
+      color: #007bff;
+    }
+
+    .card p {
+      font-size: 14px;
+      margin: 2px 0;
+      color: #555;
+    }
+
+    .nav-button {
+      background: #007bff;
+      border: none;
+      color: white;
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🛍 Compras nos Últimos 30 Dias</h2>
+
+<div id="carousel-container">
+  <button class="nav-button" onclick="scrollCarousel(-1)">←</button>
+  <div id="carousel" class="carousel"></div>
+  <button class="nav-button" onclick="scrollCarousel(1)">→</button>
+</div>
+
+<script>
+  const carousel = document.getElementById('carousel');
+  const items = JSON.parse(localStorage.getItem('wishlist')) || [];
+  const today = new Date();
+
+  const recent = items.filter(item => {
+    if (!item.dataDeCompra) return false;
+    const date = new Date(item.dataDeCompra);
+    const diff = (today - date) / (1000 * 60 * 60 * 24);
+    return diff <= 30;
+  });
+
+  function renderCarousel() {
+    if (recent.length === 0) {
+      carousel.innerHTML = "<p style='width:100%; text-align:center;'>Nenhuma compra recente</p>";
+      return;
+    }
+
+    recent.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <img src="${item.image}" />
+        <h3><a href="${item.link}" target="_blank">${item.name}</a></h3>
+        <p>Tipo: ${item.type}</p>
+        <p>Valor: R$ ${item.price}</p>
+        <p style="font-size:12px; color:gray;">${new Date(item.dataDeCompra).toLocaleDateString()}</p>
+      `;
+      carousel.appendChild(div);
+    });
+  }
+
+  function scrollCarousel(dir) {
+    const width = 220;
+    carousel.scrollBy({ left: dir * width, behavior: 'smooth' });
+  }
+
+  renderCarousel();
+</script>
+
+</body>
+</html>
