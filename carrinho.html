@@ -37,7 +37,7 @@
       background-color: #3e8e41;
     }
 
-    #wishlist {
+    #wishlist, #purchased {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
@@ -97,6 +97,11 @@
       background-color: #dc3545;
     }
 
+    .buy-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
     #pagination {
       text-align: center;
       margin-top: 20px;
@@ -144,8 +149,12 @@
   <button onclick="openModal()">➕ Adicionar Item</button>
 </div>
 
+<h2 style="color: white;">Lista de Desejos</h2>
 <div id="wishlist"></div>
 <div id="pagination"></div>
+
+<h2 style="color: white;">Itens Comprados</h2>
+<div id="purchased"></div>
 
 <!-- Modal -->
 <div id="itemModal" class="modal">
@@ -162,19 +171,21 @@
 </div>
 
 <script>
-  let items = JSON.parse(localStorage.getItem('wishlist')) || [];
+  let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+  let purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || [];
   let currentPage = 1;
   const itemsPerPage = 9;
   let editIndex = null;
 
   function saveToStorage() {
-    localStorage.setItem('wishlist', JSON.stringify(items));
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
   }
 
   function renderList() {
-    const wishlist = document.getElementById('wishlist');
-    wishlist.innerHTML = '';
-    const sorted = [...items].sort((a, b) => a.priority - b.priority);
+    const wishlistContainer = document.getElementById('wishlist');
+    wishlistContainer.innerHTML = '';
+    const sorted = [...wishlist].sort((a, b) => a.priority - b.priority);
     const start = (currentPage - 1) * itemsPerPage;
     const visible = sorted.slice(start, start + itemsPerPage);
 
@@ -189,10 +200,10 @@
         e.preventDefault();
         const fromIndex = parseInt(e.dataTransfer.getData("text/plain"));
         const toIndex = idx;
-        const dragged = items[fromIndex];
-        items.splice(fromIndex, 1);
-        items.splice(toIndex, 0, dragged);
-        items.forEach((it, i) => it.priority = i + 1);
+        const dragged = wishlist[fromIndex];
+        wishlist.splice(fromIndex, 1);
+        wishlist.splice(toIndex, 0, dragged);
+        wishlist.forEach((it, i) => it.priority = i + 1);
         saveToStorage();
         renderList();
       };
@@ -205,16 +216,17 @@
         <div class="actions">
           <button class="edit-btn" onclick="editItem(${idx})">Editar</button>
           <button class="delete-btn" onclick="deleteItem(${idx})">Excluir</button>
+          <button class="buy-btn" onclick="markAsBought(${idx})">✅ Marcar como Comprado</button>
         </div>
       `;
-      wishlist.appendChild(card);
+      wishlistContainer.appendChild(card);
     });
 
     renderPagination();
   }
 
   function renderPagination() {
-    const total = Math.ceil(items.length / itemsPerPage);
+    const total = Math.ceil(wishlist.length / itemsPerPage);
     const container = document.getElementById('pagination');
     container.innerHTML = '';
     for (let i = 1; i <= total; i++) {
@@ -224,6 +236,31 @@
       btn.onclick = () => { currentPage = i; renderList(); };
       container.appendChild(btn);
     }
+  }
+
+  function renderPurchasedItems() {
+    const purchasedContainer = document.getElementById('purchased');
+    purchasedContainer.innerHTML = '';
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const recentPurchases = purchasedItems.filter(item => {
+      const purchaseDate = new Date(item.dateOfPurchase);
+      return purchaseDate >= thirtyDaysAgo;
+    });
+
+    recentPurchases.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" />
+        <h3><a href="${item.link}" target="_blank">${item.name}</a></h3>
+        <p>Tipo: ${item.type}</p>
+        <p>Valor: ${item.price}</p>
+        <p>Comprado em: ${new Date(item.dateOfPurchase).toLocaleDateString()}</p>
+      `;
+      purchasedContainer.appendChild(card);
+    });
   }
 
   function openModal() {
@@ -250,9 +287,9 @@
 
     const item = { name, image, link, type, price, priority };
     if (editIndex !== null) {
-      items[editIndex] = item;
+      wishlist[editIndex] = item;
     } else {
-      items.push(item);
+      wishlist.push(item);
     }
 
     saveToStorage();
@@ -262,14 +299,14 @@
 
   function deleteItem(index) {
     if (confirm("Deseja excluir este item?")) {
-      items.splice(index, 1);
+      wishlist.splice(index, 1);
       saveToStorage();
       renderList();
     }
   }
 
   function editItem(index) {
-    const item = items[index];
+    const item = wishlist[index];
     document.getElementById('name').value = item.name;
     document.getElementById('image').value = item.image;
     document.getElementById('link').value = item.link;
@@ -280,7 +317,17 @@
     openModal();
   }
 
+  function markAsBought(index) {
+    const item = wishlist.splice(index, 1)[0];
+    item.dateOfPurchase = new Date().toISOString();  // Armazena a data da compra
+    purchasedItems.push(item);
+    saveToStorage();
+    renderList();
+    renderPurchasedItems();
+  }
+
   renderList();
+  renderPurchasedItems();
 </script>
 
 </body>
