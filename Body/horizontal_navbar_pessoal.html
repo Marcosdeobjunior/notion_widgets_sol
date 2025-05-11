@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+	<!-- Google Font -->
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700&display=swap" rel="stylesheet">
+
+	<!-------->
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+
+
+		.navMenu {
+			font-family: 'Poppins', sans-serif;
+			padding: 8px;
+			text-align: center;
+			margin: 7px auto;
+			width: fit-content;
+		}
+
+		.navMenu a {
+			color: #0C0F17;
+			text-decoration: none;
+			text-transform: uppercase;
+			display: inline-block;
+			padding: 6px;
+		}
+
+		.background {
+			background-color: #F4EEC5;
+		}
+
+		.border {
+			border: 1px solid #0A725C;
+
+		}
+
+		.navMenu a:hover {
+
+			color: #849D7F;
+		}
+	</style>
+</head>
+
+<body>
+
+	<nav class="navMenu  border background">
+		<a id="diario" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-book"></i> Diário</a>
+		<a id="sonhos" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-bullseye"></i> Sonhos</a>
+		<a id="palavra" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-church"></i> Palavra</a>
+                <a id="inteligencia" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-lightbulb"></i> Inteligência</a>
+		<a id="carrinho" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-cart-shopping"></i> Carrinho</a>
+	</nav>
+
+
+	<script>
+
+		let direction = "vertical";
+		if (direction === "vertical") {
+			document.head.insertAdjacentHTML("beforeend", `<style>.navMenu a {display: block; text-align:left; margin:7px} i{width:15px; margin-right:5px} .navMenu{margin:3px}</style>`)
+		}
+
+
+		function navigate(id) {
+
+			if (id == 'diario')
+				window.open("https://www.notion.so/Di-rio-1f0af0392b16809e9615e37b18bfe39c?pvs=4", '_blank').focus();
+			else if (id == 'sonhos')
+				window.open("https://www.notion.so/Sonhos-1e7af0392b16801cb03ec8b45c22ddb6?pvs=4", '_blank').focus();
+			else if (id == 'palavra')
+				window.open("https://www.notion.so/Palavra-1f0af0392b1680f8bb51c1f5e8ebb06d?pvs=4", '_blank').focus();
+                        else if (id == 'inteligencia')
+				window.open("https://www.notion.so/Intelig-ncia-1f0af0392b168093a086ff6aa0776bfe?pvs=4", '_blank').focus();
+			else if (id == 'carrinho')
+				window.open("https://www.notion.so/Carrinho-1f0af0392b1680b48f0dd9abaff298ef?pvs=4", '_blank').focus();
+		}
+	</script>
+
+
+</body>
+
+</html>
