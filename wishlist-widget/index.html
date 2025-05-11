@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Desejos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .card h3 {
+      margin: 5px 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .card p {
+      margin: 2px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .card button {
+      margin-top: 5px;
+      padding: 6px 10px;
+      font-size: 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .edit-btn { background: #ffc107; }
+    .delete-btn { background: #dc3545; color: #fff; }
+    .buy-btn { background: #28a745; color: #fff; }
+
+    #addBtn {
+      display: block;
+      margin: 0 auto 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+    }
+
+    .modal-content input {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+    }
+
+    .modal-content button {
+      padding: 8px 15px;
+      margin-top: 10px;
+    }
+
+    .pagination {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .pagination button {
+      padding: 5px 10px;
+      margin: 0 3px;
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<h1>🎁 Lista de Desejos</h1>
+<button id="addBtn">+ Adicionar Item</button>
+<div id="wishlist" class="grid"></div>
+<div class="pagination" id="pagination"></div>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <input type="text" id="name" placeholder="Nome do item" />
+    <input type="text" id="image" placeholder="URL da imagem" />
+    <input type="text" id="link" placeholder="Link de compra" />
+    <input type="text" id="type" placeholder="Tipo do item" />
+    <input type="number" id="priority" placeholder="Prioridade (1-10)" />
+    <input type="text" id="price" placeholder="Valor (R$)" />
+    <button onclick="saveItem()">Salvar</button>
+  </div>
+</div>
+
+<script>
+  let items = JSON.parse(localStorage.getItem('wishlist')) || [];
+  let editIndex = null;
+  let currentPage = 1;
+  const perPage = 9;
+
+  const wishlist = document.getElementById('wishlist');
+  const modal = document.getElementById('modal');
+
+  function openModal(index = null) {
+    editIndex = index;
+    modal.style.display = 'flex';
+    if (index !== null) {
+      const item = items[index];
+      document.getElementById('name').value = item.name;
+      document.getElementById('image').value = item.image;
+      document.getElementById('link').value = item.link;
+      document.getElementById('type').value = item.type;
+      document.getElementById('priority').value = item.priority;
+      document.getElementById('price').value = item.price;
+    } else {
+      document.querySelectorAll('#modal input').forEach(input => input.value = '');
+    }
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+
+  window.onclick = e => { if (e.target == modal) closeModal(); }
+
+  function saveItem() {
+    const newItem = {
+      name: document.getElementById('name').value,
+      image: document.getElementById('image').value,
+      link: document.getElementById('link').value,
+      type: document.getElementById('type').value,
+      priority: parseInt(document.getElementById('priority').value),
+      price: document.getElementById('price').value,
+    };
+    if (editIndex !== null) items[editIndex] = newItem;
+    else items.push(newItem);
+    localStorage.setItem('wishlist', JSON.stringify(items));
+    closeModal();
+    render();
+  }
+
+  function deleteItem(index) {
+    items.splice(index, 1);
+    localStorage.setItem('wishlist', JSON.stringify(items));
+    render();
+  }
+
+  function markAsBought(index) {
+    items[index].dataDeCompra = new Date().toISOString();
+    localStorage.setItem('wishlist', JSON.stringify(items));
+    render();
+  }
+
+  function renderPagination() {
+    const totalPages = Math.ceil(items.length / perPage);
+    const container = document.getElementById('pagination');
+    container.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      if (i === currentPage) btn.disabled = true;
+      btn.onclick = () => { currentPage = i; render(); };
+      container.appendChild(btn);
+    }
+  }
+
+  function render() {
+    wishlist.innerHTML = '';
+    const start = (currentPage - 1) * perPage;
+    const end = start + perPage;
+    const sorted = [...items].sort((a, b) => a.priority - b.priority);
+
+    sorted.slice(start, end).forEach((item, i) => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <img src="${item.image}" />
+        <h3>${item.name}</h3>
+        <p>Tipo: ${item.type}</p>
+        <p>Valor: R$ ${item.price}</p>
+        <p>${start + i + 1}º na lista</p>
+        <button class="edit-btn" onclick="openModal(${items.indexOf(item)})">✏️ Editar</button>
+        <button class="delete-btn" onclick="deleteItem(${items.indexOf(item)})">🗑 Excluir</button>
+        <button class="buy-btn" onclick="markAsBought(${items.indexOf(item)})">✅ Comprado</button>
+      `;
+      wishlist.appendChild(div);
+    });
+
+    renderPagination();
+  }
+
+  document.getElementById('addBtn').onclick = () => openModal();
+  render();
+</script>
+</body>
+</html>
