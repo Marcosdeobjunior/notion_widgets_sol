@@ -4,20 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Widget Financeiro para Notion</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --color-primary: #4caf50;
+            --color-primary-dark: #3d8b40;
+            --color-primary-light: #a5d6a7;
             --color-secondary: #2196f3;
+            --color-secondary-dark: #1976f2;
+            --color-secondary-light: #90caf9;
             --color-danger: #f44336;
+            --color-danger-dark: #d32f2f;
+            --color-warning: #ff9800;
+            --color-success: #4caf50;
             --color-background: #191919;
             --color-surface: #252525;
+            --color-surface-variant: #2c3440;
             --color-text: #e0e0e0;
             --color-text-secondary: #aaaaaa;
             --color-border: #333333;
             --color-highlight: #2c3440;
+            --color-input-bg: #333333;
             --border-radius: 8px;
             --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            --transition-speed: 0.2s;
         }
 
         * {
@@ -32,15 +43,17 @@
             color: var(--color-text);
             line-height: 1.6;
             padding: 20px;
+            transition: background-color var(--transition-speed) ease;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             background-color: var(--color-surface);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             padding: 20px;
+            transition: all var(--transition-speed) ease;
         }
 
         .header {
@@ -56,6 +69,30 @@
             font-size: 1.5rem;
             font-weight: 600;
             color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 i {
+            color: var(--color-primary);
+        }
+        
+        /* Layout de duas colunas para desktop */
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .calendar-container {
+            flex: 2;
+            min-width: 400px;
         }
 
         .saldo-container {
@@ -63,11 +100,23 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 20px;
+            position: relative;
+            background-color: var(--color-surface-variant);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
         }
 
         .saldo-label {
             font-weight: 600;
             color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .saldo-label i {
+            color: var(--color-primary);
         }
 
         #saldo-inicial {
@@ -76,8 +125,15 @@
             border-radius: var(--border-radius);
             font-size: 1rem;
             width: 150px;
-            background-color: #333333;
+            background-color: var(--color-input-bg);
             color: var(--color-text);
+            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+        }
+        
+        #saldo-inicial:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px var(--color-primary-light);
         }
 
         .filtro-container {
@@ -85,6 +141,10 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            background-color: var(--color-surface-variant);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
         }
 
         .filtro-categoria {
@@ -93,20 +153,163 @@
             gap: 10px;
             color: var(--color-text);
         }
+        
+        .filtro-categoria i {
+            color: var(--color-secondary);
+        }
 
         #filtro-categoria {
             padding: 8px 12px;
             border: 1px solid var(--color-border);
             border-radius: var(--border-radius);
             font-size: 1rem;
-            background-color: #333333;
+            background-color: var(--color-input-bg);
             color: var(--color-text);
+            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+        }
+        
+        #filtro-categoria:focus {
+            outline: none;
+            border-color: var(--color-secondary);
+            box-shadow: 0 0 0 2px var(--color-secondary-light);
         }
 
         .melhor-dia {
             font-size: 0.9rem;
             color: var(--color-primary);
             font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            background-color: var(--color-surface-variant);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        
+        .melhor-dia i {
+            color: var(--color-warning);
+        }
+        
+        .valor-disponivel {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.85rem;
+            color: var(--color-primary);
+        }
+
+        .categorias-container {
+            background-color: var(--color-surface-variant);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .categorias-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .categorias-titulo {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .categorias-titulo i {
+            color: var(--color-secondary);
+        }
+        
+        .categorias-acoes {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .toggle-categorias {
+            color: var(--color-text);
+            cursor: pointer;
+            transition: color var(--transition-speed) ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .toggle-categorias:hover {
+            color: var(--color-primary-light);
+        }
+        
+        .gerenciar-categorias {
+            color: var(--color-secondary);
+            cursor: pointer;
+            transition: color var(--transition-speed) ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .gerenciar-categorias:hover {
+            color: var(--color-secondary-light);
+            text-decoration: underline;
+        }
+        
+        .categorias-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow: hidden;
+            max-height: 500px;
+            transition: max-height var(--transition-speed) ease;
+        }
+        
+        .categorias-lista.oculto {
+            max-height: 0;
+        }
+        
+        .categoria-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-radius: var(--border-radius);
+            background-color: var(--color-surface);
+            transition: background-color var(--transition-speed) ease;
+        }
+        
+        .categoria-item:hover {
+            background-color: var(--color-highlight);
+        }
+        
+        .categoria-acoes {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .categoria-editar, .categoria-excluir {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity var(--transition-speed) ease;
+            padding: 4px 8px;
+            border-radius: var(--border-radius);
+        }
+        
+        .categoria-editar:hover {
+            opacity: 1;
+            background-color: rgba(33, 150, 243, 0.1);
+        }
+        
+        .categoria-excluir:hover {
+            opacity: 1;
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--color-danger);
         }
 
         .calendario-header {
@@ -114,6 +317,10 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            background-color: var(--color-surface-variant);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
         }
 
         .calendario-nav {
@@ -129,23 +336,41 @@
             padding: 8px 15px;
             cursor: pointer;
             font-weight: 600;
-            transition: background-color 0.2s;
+            transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .calendario-nav button:hover {
-            background-color: #1976f2;
+            background-color: var(--color-secondary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .calendario-nav button:active {
+            transform: translateY(0);
         }
 
         .calendario-mes {
             font-size: 1.2rem;
             font-weight: 600;
             color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .calendario-mes i {
+            color: var(--color-secondary);
         }
 
         .calendario {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 10px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
         }
 
         .dia-semana {
@@ -154,21 +379,25 @@
             padding: 10px 0;
             font-size: 0.9rem;
             color: var(--color-text-secondary);
+            background-color: var(--color-surface-variant);
         }
 
         .dia {
             border: 1px solid var(--color-border);
             border-radius: var(--border-radius);
             min-height: 80px;
-            padding: 5px;
+            padding: 8px;
             position: relative;
             background-color: var(--color-surface);
-            transition: background-color 0.2s;
+            transition: all var(--transition-speed) ease;
             color: var(--color-text);
+            cursor: pointer;
         }
 
         .dia:hover {
             background-color: var(--color-highlight);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
         }
 
         .dia-outro-mes {
@@ -183,6 +412,16 @@
 
         .dia-melhor {
             border: 2px solid var(--color-primary);
+            position: relative;
+        }
+        
+        .dia-melhor::after {
+            content: '✨';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 0.8rem;
+            color: var(--color-warning);
         }
 
         .dia-numero {
@@ -192,6 +431,9 @@
             font-size: 0.8rem;
             font-weight: 600;
             color: var(--color-text);
+            background-color: var(--color-surface-variant);
+            padding: 2px 6px;
+            border-radius: 10px;
         }
 
         .dia-saldo {
@@ -207,6 +449,21 @@
             font-size: 0.8rem;
             max-height: 50px;
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-border) transparent;
+        }
+        
+        .transacoes-lista::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .transacoes-lista::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .transacoes-lista::-webkit-scrollbar-thumb {
+            background-color: var(--color-border);
+            border-radius: 3px;
         }
 
         .transacao {
@@ -215,30 +472,63 @@
             align-items: center;
             padding: 3px 0;
             border-bottom: 1px solid var(--color-border);
+            transition: background-color var(--transition-speed) ease;
+        }
+        
+        .transacao:hover {
+            background-color: var(--color-highlight);
         }
 
         .transacao-entrada {
             color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .transacao-entrada::before {
+            content: '↑';
+            font-size: 0.9rem;
         }
 
         .transacao-saida {
             color: var(--color-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .transacao-saida::before {
+            content: '↓';
+            font-size: 0.9rem;
         }
 
         .transacao-insuficiente {
             color: var(--color-danger);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .transacao-insuficiente::before {
+            content: '⚠️';
+            font-size: 0.9rem;
         }
 
         .transacao-excluir {
             cursor: pointer;
             font-weight: bold;
             opacity: 0.7;
-            transition: opacity 0.2s;
+            transition: opacity var(--transition-speed) ease, color var(--transition-speed) ease;
             color: var(--color-text);
+            padding: 2px 6px;
+            border-radius: 50%;
         }
 
         .transacao-excluir:hover {
             opacity: 1;
+            color: var(--color-danger);
+            background-color: rgba(244, 67, 54, 0.1);
         }
 
         .modal {
@@ -252,6 +542,7 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(3px);
         }
 
         .modal-content {
@@ -262,6 +553,18 @@
             max-width: 400px;
             box-shadow: var(--shadow);
             color: var(--color-text);
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .modal-header {
@@ -277,6 +580,13 @@
             font-size: 1.2rem;
             font-weight: 600;
             color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .modal-title i {
+            color: var(--color-primary);
         }
 
         .modal-close {
@@ -284,6 +594,18 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--color-text);
+            transition: color var(--transition-speed) ease;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .modal-close:hover {
+            color: var(--color-danger);
+            background-color: rgba(244, 67, 54, 0.1);
         }
 
         .form-group {
@@ -304,8 +626,16 @@
             border: 1px solid var(--color-border);
             border-radius: var(--border-radius);
             font-size: 1rem;
-            background-color: #333333;
+            background-color: var(--color-input-bg);
             color: var(--color-text);
+            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px var(--color-primary-light);
         }
 
         .form-actions {
@@ -319,9 +649,17 @@
             padding: 8px 15px;
             border: none;
             border-radius: var(--border-radius);
-            cursor: pointer;
             font-weight: 600;
-            transition: background-color 0.2s;
+            cursor: pointer;
+            transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
         }
 
         .btn-primary {
@@ -330,132 +668,213 @@
         }
 
         .btn-primary:hover {
-            background-color: #3d8b40;
+            background-color: var(--color-primary-dark);
         }
 
         .btn-secondary {
-            background-color: #555555;
+            background-color: var(--color-secondary);
             color: white;
         }
 
         .btn-secondary:hover {
-            background-color: #666666;
+            background-color: var(--color-secondary-dark);
         }
 
-        .categorias-container {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid var(--color-border);
-            border-radius: var(--border-radius);
-            background-color: #202830;
+        .btn-danger {
+            background-color: var(--color-danger);
+            color: white;
         }
 
-        .categorias-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        .btn-danger:hover {
+            background-color: var(--color-danger-dark);
         }
 
-        .categorias-title {
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--color-text);
-        }
-
-        .categorias-toggle {
-            cursor: pointer;
-            color: var(--color-secondary);
-            font-size: 0.9rem;
-            text-decoration: underline;
-        }
-
-        .categorias-lista {
-            display: none;
+        .categoria-nova {
             margin-top: 10px;
-        }
-
-        .categorias-lista.ativo {
-            display: block;
-        }
-
-        .categoria-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 0;
-            border-bottom: 1px solid var(--color-border);
-            color: var(--color-text);
-        }
-
-        .categoria-nome {
-            flex-grow: 1;
-        }
-
-        .categoria-acoes {
             display: flex;
             gap: 10px;
         }
 
-        .categoria-editar,
-        .categoria-excluir {
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-            color: var(--color-text);
-        }
-
-        .categoria-editar:hover,
-        .categoria-excluir:hover {
-            opacity: 1;
-        }
-
-        .nova-categoria {
-            display: flex;
-            margin-top: 10px;
-            gap: 10px;
-        }
-
-        .nova-categoria input {
-            flex-grow: 1;
+        .categoria-nova input {
+            flex: 1;
             padding: 8px 12px;
             border: 1px solid var(--color-border);
             border-radius: var(--border-radius);
-            font-size: 0.9rem;
-            background-color: #333333;
+            font-size: 1rem;
+            background-color: var(--color-input-bg);
             color: var(--color-text);
+        }
+
+        .categoria-nova button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color var(--transition-speed) ease;
+        }
+
+        .categoria-nova button:hover {
+            background-color: var(--color-primary-dark);
         }
 
         /* Responsividade */
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
+                margin: 0;
+                max-width: 100%;
+                border-radius: 0;
             }
-
-            .calendario {
-                gap: 5px;
+            
+            body {
+                padding: 0;
             }
-
-            .dia {
-                min-height: 70px;
+            
+            .header h1 {
+                font-size: 1.3rem;
             }
-        }
-
-        @media (max-width: 480px) {
-            .header {
+            
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar, .calendar-container {
+                width: 100%;
+            }
+            
+            .saldo-container {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 10px;
+                gap: 5px;
             }
-
+            
+            #saldo-inicial {
+                width: 100%;
+            }
+            
             .filtro-container {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
             }
-
+            
+            .filtro-categoria {
+                width: 100%;
+            }
+            
+            #filtro-categoria {
+                width: 100%;
+            }
+            
+            .melhor-dia {
+                margin-top: 10px;
+            }
+            
+            .calendario-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .calendario-nav {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .calendario {
+                gap: 5px;
+            }
+            
             .dia {
                 min-height: 60px;
+                padding: 3px;
+            }
+            
+            .dia-numero {
+                font-size: 0.7rem;
+                padding: 1px 4px;
+            }
+            
+            .dia-saldo {
+                font-size: 0.65rem;
+                margin-top: 15px;
+            }
+            
+            .transacoes-lista {
+                max-height: 40px;
+                font-size: 0.7rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .form-group label {
+                font-size: 0.9rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .btn {
+                width: 100%;
+                padding: 10px;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .calendario {
+                gap: 2px;
+            }
+            
+            .dia-semana {
+                font-size: 0.7rem;
+                padding: 5px 0;
+            }
+            
+            .dia {
+                min-height: 50px;
+                touch-action: manipulation;
+            }
+            
+            .dia:hover {
+                transform: none;
+            }
+            
+            .dia:active {
+                background-color: var(--color-highlight);
+            }
+            
+            .transacoes-lista {
+                margin-top: 20px;
+            }
+            
+            .categorias-container {
+                padding: 10px;
+            }
+            
+            .form-group select,
+            .form-group input {
+                padding: 10px;
+                font-size: 1rem;
+                height: 44px; /* Melhor tamanho para toque */
+            }
+            
+            .transacao-excluir {
+                padding: 8px;
+                font-size: 1rem;
+            }
+            
+            .modal-close {
+                width: 40px;
+                height: 40px;
             }
         }
     </style>
@@ -463,60 +882,67 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Controle Financeiro</h1>
+            <h1><i class="fas fa-wallet"></i> Controle Financeiro</h1>
         </div>
 
-        <div class="saldo-container">
-            <span class="saldo-label">Saldo Inicial:</span>
-            <input type="number" id="saldo-inicial" min="0" step="0.01" value="1000.00">
-        </div>
+        <div class="main-container">
+            <div class="sidebar">
+                <div class="saldo-container">
+                    <div class="saldo-label"><i class="fas fa-coins"></i> Saldo Inicial:</div>
+                    <input type="number" id="saldo-inicial" min="0" step="0.01">
+                </div>
+                
+                <div class="categorias-container">
+                    <div class="categorias-header">
+                        <div class="categorias-titulo"><i class="fas fa-tags"></i> Categorias</div>
+                        <div class="categorias-acoes">
+                            <div class="toggle-categorias" id="toggle-categorias"><i class="fas fa-eye-slash"></i> Ocultar</div>
+                            <div class="gerenciar-categorias" id="gerenciar-categorias"><i class="fas fa-cog"></i> Gerenciar</div>
+                        </div>
+                    </div>
+                    <div class="categorias-lista" id="categorias-lista">
+                        <!-- Categorias serão preenchidas via JavaScript -->
+                    </div>
+                </div>
 
-        <div class="categorias-container">
-            <div class="categorias-header">
-                <div class="categorias-title">Categorias</div>
-                <div class="categorias-toggle" id="categorias-toggle">Gerenciar categorias</div>
-            </div>
-            <div class="categorias-lista" id="categorias-lista">
-                <!-- Categorias serão preenchidas via JavaScript -->
-                <div class="nova-categoria">
-                    <input type="text" id="nova-categoria-nome" placeholder="Nova categoria">
-                    <button class="btn btn-primary" id="adicionar-categoria">Adicionar</button>
+                <div class="filtro-container">
+                    <div class="filtro-categoria">
+                        <i class="fas fa-filter"></i>
+                        <span>Filtrar por:</span>
+                        <select id="filtro-categoria">
+                            <option value="todas">Todas as categorias</option>
+                            <!-- Opções serão preenchidas via JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="melhor-dia" id="melhor-dia">
+                    <i class="fas fa-calendar-day"></i> Melhor dia para comprar: Calculando...
                 </div>
             </div>
-        </div>
-
-        <div class="filtro-container">
-            <div class="filtro-categoria">
-                <span>Filtrar por:</span>
-                <select id="filtro-categoria">
-                    <option value="todas">Todas as categorias</option>
-                    <!-- Opções serão preenchidas via JavaScript -->
-                </select>
-            </div>
-            <div class="melhor-dia" id="melhor-dia">
-                Melhor dia para comprar: Calculando...
-            </div>
-        </div>
-
-        <div class="calendario-header">
-            <div class="calendario-mes" id="calendario-mes">Maio 2025</div>
-            <div class="calendario-nav">
-                <button id="mes-anterior">Anterior</button>
-                <button id="mes-proximo">Próximo</button>
-            </div>
-        </div>
-
-        <div class="calendario" id="calendario">
-            <!-- Dias da semana -->
-            <div class="dia-semana">Dom</div>
-            <div class="dia-semana">Seg</div>
-            <div class="dia-semana">Ter</div>
-            <div class="dia-semana">Qua</div>
-            <div class="dia-semana">Qui</div>
-            <div class="dia-semana">Sex</div>
-            <div class="dia-semana">Sáb</div>
             
-            <!-- Os dias serão preenchidos via JavaScript -->
+            <div class="calendar-container">
+                <div class="calendario-header">
+                    <div class="calendario-mes" id="calendario-mes"><i class="fas fa-calendar-alt"></i> Maio 2025</div>
+                    <div class="calendario-nav">
+                        <button id="mes-anterior"><i class="fas fa-chevron-left"></i> Anterior</button>
+                        <button id="mes-proximo">Próximo <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="calendario" id="calendario">
+                    <!-- Dias da semana -->
+                    <div class="dia-semana">Dom</div>
+                    <div class="dia-semana">Seg</div>
+                    <div class="dia-semana">Ter</div>
+                    <div class="dia-semana">Qua</div>
+                    <div class="dia-semana">Qui</div>
+                    <div class="dia-semana">Sex</div>
+                    <div class="dia-semana">Sáb</div>
+                    
+                    <!-- Os dias serão preenchidos via JavaScript -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -524,7 +950,7 @@
     <div class="modal" id="modal-transacao">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title">Nova Transação</div>
+                <div class="modal-title"><i class="fas fa-exchange-alt"></i> Nova Transação</div>
                 <span class="modal-close">&times;</span>
             </div>
             <form id="form-transacao">
@@ -554,11 +980,28 @@
         </div>
     </div>
 
+    <!-- Modal para gerenciar categorias -->
+    <div class="modal" id="modal-categorias">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title"><i class="fas fa-tags"></i> Gerenciar Categorias</div>
+                <span class="modal-close" id="categorias-modal-close">&times;</span>
+            </div>
+            <div id="categorias-gerenciar">
+                <!-- Categorias serão preenchidas via JavaScript -->
+            </div>
+            <div class="categoria-nova">
+                <input type="text" id="categoria-nova" placeholder="Nova categoria...">
+                <button id="btn-adicionar-categoria">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal para editar categoria -->
     <div class="modal" id="modal-categoria">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title">Editar Categoria</div>
+                <div class="modal-title"><i class="fas fa-edit"></i> Editar Categoria</div>
                 <span class="modal-close" id="categoria-modal-close">&times;</span>
             </div>
             <form id="form-categoria">
@@ -592,93 +1035,113 @@
                 { id: 'saude', nome: 'Saúde' },
                 { id: 'educacao', nome: 'Educação' },
                 { id: 'outros', nome: 'Outros' }
-            ],
-            categoriaEditando: null
+            ]
         };
 
-        // Elementos DOM
+        // Elementos do DOM
         const elementos = {
             saldoInicial: document.getElementById('saldo-inicial'),
-            calendarioMes: document.getElementById('calendario-mes'),
-            calendario: document.getElementById('calendario'),
-            mesAnterior: document.getElementById('mes-anterior'),
-            mesProximo: document.getElementById('mes-proximo'),
             filtroCategoria: document.getElementById('filtro-categoria'),
             melhorDia: document.getElementById('melhor-dia'),
-            modal: document.getElementById('modal-transacao'),
-            modalClose: document.querySelector('.modal-close'),
+            calendario: document.getElementById('calendario'),
+            calendarioMes: document.getElementById('calendario-mes'),
+            mesAnterior: document.getElementById('mes-anterior'),
+            mesProximo: document.getElementById('mes-proximo'),
+            modalTransacao: document.getElementById('modal-transacao'),
             formTransacao: document.getElementById('form-transacao'),
             transacaoData: document.getElementById('transacao-data'),
             transacaoTipo: document.getElementById('transacao-tipo'),
             transacaoCategoria: document.getElementById('transacao-categoria'),
             transacaoValor: document.getElementById('transacao-valor'),
             btnCancelar: document.getElementById('btn-cancelar'),
-            categoriasToggle: document.getElementById('categorias-toggle'),
-            categoriasLista: document.getElementById('categorias-lista'),
-            adicionarCategoria: document.getElementById('adicionar-categoria'),
-            novaCategoriaInput: document.getElementById('nova-categoria-nome'),
+            modalClose: document.querySelector('.modal-close'),
+            gerenciarCategorias: document.getElementById('gerenciar-categorias'),
+            toggleCategorias: document.getElementById('toggle-categorias'),
+            modalCategorias: document.getElementById('modal-categorias'),
+            categoriasGerenciar: document.getElementById('categorias-gerenciar'),
+            categoriasModalClose: document.getElementById('categorias-modal-close'),
+            categoriaNova: document.getElementById('categoria-nova'),
+            btnAdicionarCategoria: document.getElementById('btn-adicionar-categoria'),
             modalCategoria: document.getElementById('modal-categoria'),
-            categoriaModalClose: document.getElementById('categoria-modal-close'),
             formCategoria: document.getElementById('form-categoria'),
             categoriaId: document.getElementById('categoria-id'),
             categoriaNome: document.getElementById('categoria-nome'),
-            btnCancelarCategoria: document.getElementById('btn-cancelar-categoria')
+            btnCancelarCategoria: document.getElementById('btn-cancelar-categoria'),
+            categoriaModalClose: document.getElementById('categoria-modal-close'),
+            categoriasLista: document.getElementById('categorias-lista')
         };
 
-        // Funções de utilidade
-        function formatarMoeda(valor) {
-            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        // Funções auxiliares
+        function gerarId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
         }
 
-        function formatarData(data) {
-            return data.toLocaleDateString('pt-BR');
+        function formatarMoeda(valor) {
+            return `R$ ${valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+        }
+
+        function dataParaString(data) {
+            return data.toISOString();
+        }
+
+        function stringParaData(dataString) {
+            return new Date(dataString);
+        }
+
+        function mesmoDia(data1, data2) {
+            return data1.getDate() === data2.getDate() &&
+                   data1.getMonth() === data2.getMonth() &&
+                   data1.getFullYear() === data2.getFullYear();
         }
 
         function obterNomeMes(data) {
             return data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
         }
 
-        function mesmoMes(data1, data2) {
-            return data1.getFullYear() === data2.getFullYear() && data1.getMonth() === data2.getMonth();
-        }
-
-        function mesmoDia(data1, data2) {
-            return mesmoMes(data1, data2) && data1.getDate() === data2.getDate();
-        }
-
-        function dataParaString(data) {
-            return `${data.getFullYear()}-${(data.getMonth() + 1).toString().padStart(2, '0')}-${data.getDate().toString().padStart(2, '0')}`;
-        }
-
-        function stringParaData(str) {
-            const [ano, mes, dia] = str.split('-').map(Number);
-            return new Date(ano, mes - 1, dia);
-        }
-
-        function gerarId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-        }
-
         // Funções de manipulação de dados
         function carregarDados() {
             const dadosSalvos = localStorage.getItem('financeiro-widget');
+            
             if (dadosSalvos) {
-                const dados = JSON.parse(dadosSalvos);
-                // Garantir que o saldo inicial seja sempre um valor positivo
-                let saldoCarregado = dados.saldoInicial || 1000;
-                estado.saldoInicial = saldoCarregado < 0 ? 0 : saldoCarregado;
-                estado.transacoes = dados.transacoes || [];
-                
-                // Carregar categorias personalizadas
-                if (dados.categorias && dados.categorias.length > 0) {
-                    estado.categorias = dados.categorias;
+                try {
+                    const dados = JSON.parse(dadosSalvos);
+                    
+                    // Validar saldo inicial
+                    if (typeof dados.saldoInicial === 'number' && !isNaN(dados.saldoInicial) && dados.saldoInicial >= 0) {
+                        estado.saldoInicial = dados.saldoInicial;
+                    }
+                    
+                    // Carregar transações
+                    if (Array.isArray(dados.transacoes)) {
+                        estado.transacoes = dados.transacoes.map(t => ({
+                            ...t,
+                            data: stringParaData(t.data)
+                        }));
+                    }
+                    
+                    // Carregar categorias
+                    if (Array.isArray(dados.categorias)) {
+                        estado.categorias = dados.categorias;
+                        
+                        // Garantir que a categoria "Outros" sempre exista
+                        if (!estado.categorias.find(c => c.id === 'outros')) {
+                            estado.categorias.push({ id: 'outros', nome: 'Outros' });
+                        }
+                    }
+                    
+                    // Atualizar interface
+                    elementos.saldoInicial.value = estado.saldoInicial;
+                    renderizarCategorias();
+                    atualizarSelectsCategorias();
+                } catch (erro) {
+                    console.error('Erro ao carregar dados:', erro);
+                    // Resetar para valores padrão em caso de erro
+                    estado.saldoInicial = 1000;
+                    estado.transacoes = [];
+                    elementos.saldoInicial.value = estado.saldoInicial;
                 }
-                
-                // Converter strings de data para objetos Date
-                estado.transacoes.forEach(t => {
-                    t.data = stringParaData(t.data);
-                });
-                
+            } else {
+                // Primeira execução, definir valores padrão
                 elementos.saldoInicial.value = estado.saldoInicial;
             }
         }
@@ -925,12 +1388,13 @@
             const fimDoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
             let melhorDia = null;
             let maiorPontuacao = -Infinity;
+            let valorDisponivel = 0;
             
             // Verificar se todas as contas do mês podem ser quitadas
             const contasQuitadas = verificarContasQuitadas(hoje);
             
             if (!contasQuitadas) {
-                elementos.melhorDia.textContent = 'Melhor dia para comprar: Não disponível (saldo insuficiente para quitar todas as contas e manter reserva de R$ 200)';
+                elementos.melhorDia.innerHTML = '<i class="fas fa-calendar-day"></i> Melhor dia para comprar: Não disponível (saldo insuficiente para quitar todas as contas e manter reserva de R$ 200)';
                 return null;
             }
             
@@ -957,14 +1421,16 @@
                     if (pontuacao > maiorPontuacao) {
                         maiorPontuacao = pontuacao;
                         melhorDia = data;
+                        // Calcular valor disponível para gastar (saldo atual menos contas futuras, com margem de segurança de 200)
+                        valorDisponivel = saldoFuturo - 200;
                     }
                 }
             }
             
             if (melhorDia) {
-                elementos.melhorDia.textContent = `Melhor dia para comprar: ${melhorDia.getDate()} de ${melhorDia.toLocaleDateString('pt-BR', { month: 'long' })}`;
+                elementos.melhorDia.innerHTML = `<i class="fas fa-calendar-day"></i> Melhor dia para comprar: <strong>${melhorDia.getDate()} de ${melhorDia.toLocaleDateString('pt-BR', { month: 'long' })}</strong><br><span class="valor-disponivel">Valor disponível para gastar: <strong>${formatarMoeda(valorDisponivel)}</strong></span>`;
             } else {
-                elementos.melhorDia.textContent = 'Melhor dia para comprar: Não disponível (nenhum dia com saldo futuro suficiente)';
+                elementos.melhorDia.innerHTML = '<i class="fas fa-calendar-day"></i> Melhor dia para comprar: Não disponível (nenhum dia com saldo futuro suficiente)';
             }
             
             return melhorDia;
@@ -978,7 +1444,7 @@
             }
             
             // Atualizar título do mês
-            elementos.calendarioMes.textContent = obterNomeMes(estado.mesAtual);
+            elementos.calendarioMes.innerHTML = `<i class="fas fa-calendar-alt"></i> ${obterNomeMes(estado.mesAtual)}`;
             
             // Obter informações do mês
             const primeiroDiaMes = new Date(estado.mesAtual.getFullYear(), estado.mesAtual.getMonth(), 1);
@@ -1185,235 +1651,217 @@
                 
                 container.appendChild(categoriaItem);
             });
-            
-            // Adicionar o formulário para nova categoria
-            const novaCategoria = document.createElement('div');
-            novaCategoria.className = 'nova-categoria';
-            
-            const inputNovaCategoria = document.createElement('input');
-            inputNovaCategoria.type = 'text';
-            inputNovaCategoria.id = 'nova-categoria-nome';
-            inputNovaCategoria.placeholder = 'Nova categoria';
-            
-            const btnAdicionar = document.createElement('button');
-            btnAdicionar.className = 'btn btn-primary';
-            btnAdicionar.id = 'adicionar-categoria';
-            btnAdicionar.textContent = 'Adicionar';
-            btnAdicionar.addEventListener('click', () => {
-                const nome = inputNovaCategoria.value;
-                if (adicionarCategoria(nome)) {
-                    inputNovaCategoria.value = '';
-                }
-            });
-            
-            novaCategoria.appendChild(inputNovaCategoria);
-            novaCategoria.appendChild(btnAdicionar);
-            
-            container.appendChild(novaCategoria);
-            
-            // Atualizar referências aos elementos DOM
-            elementos.novaCategoriaInput = document.getElementById('nova-categoria-nome');
-            elementos.adicionarCategoria = document.getElementById('adicionar-categoria');
         }
 
         function atualizarSelectsCategorias() {
-            // Atualizar o select de filtro
-            const filtroSelect = elementos.filtroCategoria;
-            const filtroValorAtual = filtroSelect.value;
-            
             // Limpar opções existentes
-            while (filtroSelect.options.length > 1) {
-                filtroSelect.remove(1);
-            }
+            elementos.transacaoCategoria.innerHTML = '';
+            elementos.filtroCategoria.innerHTML = '';
             
-            // Adicionar categorias como opções
+            // Adicionar opção "Todas as categorias" apenas para o filtro
+            const todasOption = document.createElement('option');
+            todasOption.value = 'todas';
+            todasOption.textContent = 'Todas as categorias';
+            elementos.filtroCategoria.appendChild(todasOption);
+            
+            // Adicionar categorias aos selects
             estado.categorias.forEach(categoria => {
-                const option = document.createElement('option');
-                option.value = categoria.id;
-                option.textContent = categoria.nome;
-                filtroSelect.appendChild(option);
+                const optionTransacao = document.createElement('option');
+                optionTransacao.value = categoria.id;
+                optionTransacao.textContent = categoria.nome;
+                elementos.transacaoCategoria.appendChild(optionTransacao);
+                
+                const optionFiltro = document.createElement('option');
+                optionFiltro.value = categoria.id;
+                optionFiltro.textContent = categoria.nome;
+                elementos.filtroCategoria.appendChild(optionFiltro);
             });
             
-            // Restaurar valor selecionado
-            if (estado.categorias.find(c => c.id === filtroValorAtual)) {
-                filtroSelect.value = filtroValorAtual;
-            } else {
-                filtroSelect.value = 'todas';
-                estado.filtroCategoria = 'todas';
-            }
-            
-            // Atualizar o select de categorias no modal de transação
-            const transacaoSelect = elementos.transacaoCategoria;
-            
-            // Limpar opções existentes
-            while (transacaoSelect.options.length > 0) {
-                transacaoSelect.remove(0);
-            }
-            
-            // Adicionar categorias como opções
-            estado.categorias.forEach(categoria => {
-                const option = document.createElement('option');
-                option.value = categoria.id;
-                option.textContent = categoria.nome;
-                transacaoSelect.appendChild(option);
-            });
-            
-            // Selecionar a primeira opção por padrão
-            if (transacaoSelect.options.length > 0) {
-                transacaoSelect.selectedIndex = 0;
-            }
+            // Restaurar valor selecionado no filtro
+            elementos.filtroCategoria.value = estado.filtroCategoria;
         }
 
         // Funções de interação
         function abrirModalTransacao(data) {
             estado.diaSelecionado = data;
             elementos.transacaoData.value = dataParaString(data);
-            elementos.modal.style.display = 'flex';
-            elementos.transacaoValor.value = '';
             elementos.transacaoTipo.value = 'entrada';
+            elementos.transacaoCategoria.value = 'salario';
+            elementos.transacaoValor.value = '';
             
-            // Selecionar a primeira categoria por padrão
-            if (elementos.transacaoCategoria.options.length > 0) {
-                elementos.transacaoCategoria.selectedIndex = 0;
-            }
+            elementos.modalTransacao.style.display = 'flex';
         }
 
         function fecharModalTransacao() {
-            elementos.modal.style.display = 'none';
-            estado.diaSelecionado = null;
+            elementos.modalTransacao.style.display = 'none';
+        }
+
+        function abrirModalCategorias() {
+            // Limpar lista de categorias existente
+            const container = elementos.categoriasGerenciar;
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+            
+            // Adicionar cada categoria à lista
+            estado.categorias.forEach(categoria => {
+                const categoriaItem = document.createElement('div');
+                categoriaItem.className = 'categoria-item';
+                
+                const categoriaNome = document.createElement('div');
+                categoriaNome.className = 'categoria-nome';
+                categoriaNome.textContent = categoria.nome;
+                
+                const categoriaAcoes = document.createElement('div');
+                categoriaAcoes.className = 'categoria-acoes';
+                
+                const btnEditar = document.createElement('span');
+                btnEditar.className = 'categoria-editar';
+                btnEditar.textContent = '✎';
+                btnEditar.addEventListener('click', () => {
+                    fecharModalCategorias();
+                    abrirModalEditarCategoria(categoria);
+                });
+                
+                const btnExcluir = document.createElement('span');
+                btnExcluir.className = 'categoria-excluir';
+                btnExcluir.textContent = '✕';
+                btnExcluir.addEventListener('click', () => {
+                    if (confirm(`Deseja realmente excluir a categoria "${categoria.nome}"?`)) {
+                        removerCategoria(categoria.id);
+                        renderizarCategorias();
+                    }
+                });
+                
+                categoriaAcoes.appendChild(btnEditar);
+                categoriaAcoes.appendChild(btnExcluir);
+                
+                categoriaItem.appendChild(categoriaNome);
+                categoriaItem.appendChild(categoriaAcoes);
+                
+                container.appendChild(categoriaItem);
+            });
+            
+            elementos.categoriaNova.value = '';
+            elementos.modalCategorias.style.display = 'flex';
+        }
+
+        function fecharModalCategorias() {
+            elementos.modalCategorias.style.display = 'none';
         }
 
         function abrirModalEditarCategoria(categoria) {
-            estado.categoriaEditando = categoria;
             elementos.categoriaId.value = categoria.id;
             elementos.categoriaNome.value = categoria.nome;
             elementos.modalCategoria.style.display = 'flex';
         }
 
-        function fecharModalCategoria() {
+        function fecharModalEditarCategoria() {
             elementos.modalCategoria.style.display = 'none';
-            estado.categoriaEditando = null;
         }
 
-        function toggleCategorias() {
-            elementos.categoriasLista.classList.toggle('ativo');
-            elementos.categoriasToggle.textContent = elementos.categoriasLista.classList.contains('ativo') 
-                ? 'Ocultar categorias' 
-                : 'Gerenciar categorias';
-        }
-
-        // Event Listeners
-        function inicializarEventListeners() {
-            // Navegação do calendário
-            elementos.mesAnterior.addEventListener('click', () => {
-                estado.mesAtual.setMonth(estado.mesAtual.getMonth() - 1);
-                renderizarCalendario();
-            });
+        // Event listeners
+        elementos.saldoInicial.addEventListener('change', () => {
+            const valor = parseFloat(elementos.saldoInicial.value);
+            if (isNaN(valor) || valor < 0) {
+                alert('Por favor, informe um valor válido para o saldo inicial.');
+                elementos.saldoInicial.value = estado.saldoInicial;
+                return;
+            }
             
-            elementos.mesProximo.addEventListener('click', () => {
-                estado.mesAtual.setMonth(estado.mesAtual.getMonth() + 1);
-                renderizarCalendario();
-            });
-            
-            // Saldo inicial
-            elementos.saldoInicial.addEventListener('change', () => {
-                const valor = parseFloat(elementos.saldoInicial.value);
-                if (isNaN(valor) || valor < 0) {
-                    alert('Por favor, informe um valor válido maior ou igual a zero.');
-                    elementos.saldoInicial.value = estado.saldoInicial;
-                    return;
-                }
-                estado.saldoInicial = valor;
-                salvarDados();
-                renderizarCalendario();
-                calcularMelhorDia();
-            });
-            
-            // Filtro de categoria
-            elementos.filtroCategoria.addEventListener('change', () => {
-                estado.filtroCategoria = elementos.filtroCategoria.value;
-                renderizarCalendario();
-            });
-            
-            // Modal de transação
-            elementos.modalClose.addEventListener('click', fecharModalTransacao);
-            elementos.btnCancelar.addEventListener('click', fecharModalTransacao);
-            
-            // Formulário de transação
-            elementos.formTransacao.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const valor = parseFloat(elementos.transacaoValor.value);
-                if (isNaN(valor) || valor <= 0) {
-                    alert('Por favor, informe um valor válido maior que zero.');
-                    return;
-                }
-                
-                const transacao = {
-                    id: Date.now(), // ID único baseado no timestamp
-                    data: estado.diaSelecionado,
-                    tipo: elementos.transacaoTipo.value,
-                    categoria: elementos.transacaoCategoria.value,
-                    valor: valor
-                };
-                
-                adicionarTransacao(transacao);
-                fecharModalTransacao();
-            });
-            
-            // Fechar modal ao clicar fora
-            window.addEventListener('click', (e) => {
-                if (e.target === elementos.modal) {
-                    fecharModalTransacao();
-                }
-                if (e.target === elementos.modalCategoria) {
-                    fecharModalCategoria();
-                }
-            });
-            
-            // Toggle de categorias
-            elementos.categoriasToggle.addEventListener('click', toggleCategorias);
-            
-            // Modal de categoria
-            elementos.categoriaModalClose.addEventListener('click', fecharModalCategoria);
-            elementos.btnCancelarCategoria.addEventListener('click', fecharModalCategoria);
-            
-            // Formulário de categoria
-            elementos.formCategoria.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const id = elementos.categoriaId.value;
-                const nome = elementos.categoriaNome.value;
-                
-                if (editarCategoria(id, nome)) {
-                    fecharModalCategoria();
-                }
-            });
-            
-            // Adicionar nova categoria
-            elementos.novaCategoriaInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const nome = elementos.novaCategoriaInput.value;
-                    if (adicionarCategoria(nome)) {
-                        elementos.novaCategoriaInput.value = '';
-                    }
-                }
-            });
-        }
-
-        // Inicialização
-        function inicializar() {
-            carregarDados();
-            renderizarCategorias();
-            atualizarSelectsCategorias();
-            inicializarEventListeners();
+            estado.saldoInicial = valor;
+            salvarDados();
             renderizarCalendario();
             calcularMelhorDia();
-        }
+        });
 
-        // Iniciar aplicação quando o DOM estiver pronto
-        document.addEventListener('DOMContentLoaded', inicializar);
+        elementos.filtroCategoria.addEventListener('change', () => {
+            estado.filtroCategoria = elementos.filtroCategoria.value;
+            renderizarCalendario();
+        });
+
+        elementos.mesAnterior.addEventListener('click', () => {
+            estado.mesAtual.setMonth(estado.mesAtual.getMonth() - 1);
+            renderizarCalendario();
+        });
+
+        elementos.mesProximo.addEventListener('click', () => {
+            estado.mesAtual.setMonth(estado.mesAtual.getMonth() + 1);
+            renderizarCalendario();
+        });
+
+        elementos.formTransacao.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const tipo = elementos.transacaoTipo.value;
+            const categoria = elementos.transacaoCategoria.value;
+            const valor = parseFloat(elementos.transacaoValor.value);
+            
+            if (isNaN(valor) || valor <= 0) {
+                alert('Por favor, informe um valor válido para a transação.');
+                return;
+            }
+            
+            const transacao = {
+                id: gerarId(),
+                tipo,
+                categoria,
+                valor,
+                data: estado.diaSelecionado
+            };
+            
+            adicionarTransacao(transacao);
+            fecharModalTransacao();
+        });
+
+        elementos.btnCancelar.addEventListener('click', fecharModalTransacao);
+        elementos.modalClose.addEventListener('click', fecharModalTransacao);
+
+        elementos.gerenciarCategorias.addEventListener('click', abrirModalCategorias);
+        elementos.categoriasModalClose.addEventListener('click', fecharModalCategorias);
+
+        elementos.toggleCategorias.addEventListener('click', () => {
+            const categoriasLista = elementos.categoriasLista;
+            const toggleBtn = elementos.toggleCategorias;
+            
+            if (categoriasLista.classList.contains('oculto')) {
+                // Mostrar categorias
+                categoriasLista.classList.remove('oculto');
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar';
+            } else {
+                // Ocultar categorias
+                categoriasLista.classList.add('oculto');
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Mostrar';
+            }
+        });
+
+        elementos.btnAdicionarCategoria.addEventListener('click', () => {
+            const nome = elementos.categoriaNova.value;
+            if (adicionarCategoria(nome)) {
+                elementos.categoriaNova.value = '';
+                fecharModalCategorias();
+            }
+        });
+
+        elementos.formCategoria.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const id = elementos.categoriaId.value;
+            const nome = elementos.categoriaNome.value;
+            
+            if (editarCategoria(id, nome)) {
+                fecharModalEditarCategoria();
+            }
+        });
+
+        elementos.btnCancelarCategoria.addEventListener('click', fecharModalEditarCategoria);
+        elementos.categoriaModalClose.addEventListener('click', fecharModalEditarCategoria);
+
+        // Inicialização
+        carregarDados();
+        renderizarCategorias();
+        atualizarSelectsCategorias();
+        renderizarCalendario();
     </script>
 </body>
 </html>
