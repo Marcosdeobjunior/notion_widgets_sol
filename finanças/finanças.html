@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Financeiro para Notion</title>
+    <style>
+        :root {
+            --color-primary: #4caf50;
+            --color-secondary: #2196f3;
+            --color-danger: #f44336;
+            --color-background: #191919;
+            --color-surface: #252525;
+            --color-text: #e0e0e0;
+            --color-text-secondary: #aaaaaa;
+            --color-border: #333333;
+            --color-highlight: #2c3440;
+            --border-radius: 8px;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: #191919;
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--color-surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .saldo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .saldo-label {
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        #saldo-inicial {
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            width: 150px;
+            background-color: #333333;
+            color: var(--color-text);
+        }
+
+        .filtro-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filtro-categoria {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--color-text);
+        }
+
+        #filtro-categoria {
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            background-color: #333333;
+            color: var(--color-text);
+        }
+
+        .melhor-dia {
+            font-size: 0.9rem;
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .calendario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendario-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendario-nav button {
+            background-color: var(--color-secondary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .calendario-nav button:hover {
+            background-color: #1976f2;
+        }
+
+        .calendario-mes {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .calendario {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .dia-semana {
+            text-align: center;
+            font-weight: 600;
+            padding: 10px 0;
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+        }
+
+        .dia {
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            min-height: 80px;
+            padding: 5px;
+            position: relative;
+            background-color: var(--color-surface);
+            transition: background-color 0.2s;
+            color: var(--color-text);
+        }
+
+        .dia:hover {
+            background-color: var(--color-highlight);
+        }
+
+        .dia-outro-mes {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .dia-atual {
+            border: 2px solid var(--color-secondary);
+            background-color: var(--color-highlight);
+        }
+
+        .dia-melhor {
+            border: 2px solid var(--color-primary);
+        }
+
+        .dia-numero {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .dia-saldo {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 20px;
+            text-align: right;
+            color: var(--color-text);
+        }
+
+        .transacoes-lista {
+            margin-top: 25px;
+            font-size: 0.8rem;
+            max-height: 50px;
+            overflow-y: auto;
+        }
+
+        .transacao {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .transacao-entrada {
+            color: var(--color-primary);
+        }
+
+        .transacao-saida {
+            color: var(--color-secondary);
+        }
+
+        .transacao-insuficiente {
+            color: var(--color-danger);
+        }
+
+        .transacao-excluir {
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            color: var(--color-text);
+        }
+
+        .transacao-excluir:hover {
+            opacity: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--color-surface);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+            color: var(--color-text);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--color-text);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            background-color: #333333;
+            color: var(--color-text);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3d8b40;
+        }
+
+        .btn-secondary {
+            background-color: #555555;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #666666;
+        }
+
+        .categorias-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            background-color: #202830;
+        }
+
+        .categorias-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .categorias-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--color-text);
+        }
+
+        .categorias-toggle {
+            cursor: pointer;
+            color: var(--color-secondary);
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+
+        .categorias-lista {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .categorias-lista.ativo {
+            display: block;
+        }
+
+        .categoria-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .categoria-nome {
+            flex-grow: 1;
+        }
+
+        .categoria-acoes {
+            display: flex;
+            gap: 10px;
+        }
+
+        .categoria-editar,
+        .categoria-excluir {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            color: var(--color-text);
+        }
+
+        .categoria-editar:hover,
+        .categoria-excluir:hover {
+            opacity: 1;
+        }
+
+        .nova-categoria {
+            display: flex;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .nova-categoria input {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            background-color: #333333;
+            color: var(--color-text);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .calendario {
+                gap: 5px;
+            }
+
+            .dia {
+                min-height: 70px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .filtro-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .dia {
+                min-height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Controle Financeiro</h1>
+        </div>
+
+        <div class="saldo-container">
+            <span class="saldo-label">Saldo Inicial:</span>
+            <input type="number" id="saldo-inicial" min="0" step="0.01" value="1000.00">
+        </div>
+
+        <div class="categorias-container">
+            <div class="categorias-header">
+                <div class="categorias-title">Categorias</div>
+                <div class="categorias-toggle" id="categorias-toggle">Gerenciar categorias</div>
+            </div>
+            <div class="categorias-lista" id="categorias-lista">
+                <!-- Categorias serão preenchidas via JavaScript -->
+                <div class="nova-categoria">
+                    <input type="text" id="nova-categoria-nome" placeholder="Nova categoria">
+                    <button class="btn btn-primary" id="adicionar-categoria">Adicionar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="filtro-container">
+            <div class="filtro-categoria">
+                <span>Filtrar por:</span>
+                <select id="filtro-categoria">
+                    <option value="todas">Todas as categorias</option>
+                    <!-- Opções serão preenchidas via JavaScript -->
+                </select>
+            </div>
+            <div class="melhor-dia" id="melhor-dia">
+                Melhor dia para comprar: Calculando...
+            </div>
+        </div>
+
+        <div class="calendario-header">
+            <div class="calendario-mes" id="calendario-mes">Maio 2025</div>
+            <div class="calendario-nav">
+                <button id="mes-anterior">Anterior</button>
+                <button id="mes-proximo">Próximo</button>
+            </div>
+        </div>
+
+        <div class="calendario" id="calendario">
+            <!-- Dias da semana -->
+            <div class="dia-semana">Dom</div>
+            <div class="dia-semana">Seg</div>
+            <div class="dia-semana">Ter</div>
+            <div class="dia-semana">Qua</div>
+            <div class="dia-semana">Qui</div>
+            <div class="dia-semana">Sex</div>
+            <div class="dia-semana">Sáb</div>
+            
+            <!-- Os dias serão preenchidos via JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modal para adicionar transação -->
+    <div class="modal" id="modal-transacao">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Nova Transação</div>
+                <span class="modal-close">&times;</span>
+            </div>
+            <form id="form-transacao">
+                <input type="hidden" id="transacao-data">
+                <div class="form-group">
+                    <label for="transacao-tipo">Tipo</label>
+                    <select id="transacao-tipo">
+                        <option value="entrada">Entrada</option>
+                        <option value="saida">Saída</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transacao-categoria">Categoria</label>
+                    <select id="transacao-categoria">
+                        <!-- Opções serão preenchidas via JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transacao-valor">Valor</label>
+                    <input type="number" id="transacao-valor" min="0.01" step="0.01" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar categoria -->
+    <div class="modal" id="modal-categoria">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Editar Categoria</div>
+                <span class="modal-close" id="categoria-modal-close">&times;</span>
+            </div>
+            <form id="form-categoria">
+                <input type="hidden" id="categoria-id">
+                <div class="form-group">
+                    <label for="categoria-nome">Nome da Categoria</label>
+                    <input type="text" id="categoria-nome" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar-categoria">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        const estado = {
+            saldoInicial: 1000,
+            mesAtual: new Date(),
+            transacoes: [],
+            filtroCategoria: 'todas',
+            diaSelecionado: null,
+            categorias: [
+                { id: 'salario', nome: 'Salário' },
+                { id: 'alimentacao', nome: 'Alimentação' },
+                { id: 'lazer', nome: 'Lazer' },
+                { id: 'transporte', nome: 'Transporte' },
+                { id: 'moradia', nome: 'Moradia' },
+                { id: 'saude', nome: 'Saúde' },
+                { id: 'educacao', nome: 'Educação' },
+                { id: 'outros', nome: 'Outros' }
+            ],
+            categoriaEditando: null
+        };
+
+        // Elementos DOM
+        const elementos = {
+            saldoInicial: document.getElementById('saldo-inicial'),
+            calendarioMes: document.getElementById('calendario-mes'),
+            calendario: document.getElementById('calendario'),
+            mesAnterior: document.getElementById('mes-anterior'),
+            mesProximo: document.getElementById('mes-proximo'),
+            filtroCategoria: document.getElementById('filtro-categoria'),
+            melhorDia: document.getElementById('melhor-dia'),
+            modal: document.getElementById('modal-transacao'),
+            modalClose: document.querySelector('.modal-close'),
+            formTransacao: document.getElementById('form-transacao'),
+            transacaoData: document.getElementById('transacao-data'),
+            transacaoTipo: document.getElementById('transacao-tipo'),
+            transacaoCategoria: document.getElementById('transacao-categoria'),
+            transacaoValor: document.getElementById('transacao-valor'),
+            btnCancelar: document.getElementById('btn-cancelar'),
+            categoriasToggle: document.getElementById('categorias-toggle'),
+            categoriasLista: document.getElementById('categorias-lista'),
+            adicionarCategoria: document.getElementById('adicionar-categoria'),
+            novaCategoriaInput: document.getElementById('nova-categoria-nome'),
+            modalCategoria: document.getElementById('modal-categoria'),
+            categoriaModalClose: document.getElementById('categoria-modal-close'),
+            formCategoria: document.getElementById('form-categoria'),
+            categoriaId: document.getElementById('categoria-id'),
+            categoriaNome: document.getElementById('categoria-nome'),
+            btnCancelarCategoria: document.getElementById('btn-cancelar-categoria')
+        };
+
+        // Funções de utilidade
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function formatarData(data) {
+            return data.toLocaleDateString('pt-BR');
+        }
+
+        function obterNomeMes(data) {
+            return data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        }
+
+        function mesmoMes(data1, data2) {
+            return data1.getFullYear() === data2.getFullYear() && data1.getMonth() === data2.getMonth();
+        }
+
+        function mesmoDia(data1, data2) {
+            return mesmoMes(data1, data2) && data1.getDate() === data2.getDate();
+        }
+
+        function dataParaString(data) {
+            return `${data.getFullYear()}-${(data.getMonth() + 1).toString().padStart(2, '0')}-${data.getDate().toString().padStart(2, '0')}`;
+        }
+
+        function stringParaData(str) {
+            const [ano, mes, dia] = str.split('-').map(Number);
+            return new Date(ano, mes - 1, dia);
+        }
+
+        function gerarId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        }
+
+        // Funções de manipulação de dados
+        function carregarDados() {
+            const dadosSalvos = localStorage.getItem('financeiro-widget');
+            if (dadosSalvos) {
+                const dados = JSON.parse(dadosSalvos);
+                // Garantir que o saldo inicial seja sempre um valor positivo
+                let saldoCarregado = dados.saldoInicial || 1000;
+                estado.saldoInicial = saldoCarregado < 0 ? 0 : saldoCarregado;
+                estado.transacoes = dados.transacoes || [];
+                
+                // Carregar categorias personalizadas
+                if (dados.categorias && dados.categorias.length > 0) {
+                    estado.categorias = dados.categorias;
+                }
+                
+                // Converter strings de data para objetos Date
+                estado.transacoes.forEach(t => {
+                    t.data = stringParaData(t.data);
+                });
+                
+                elementos.saldoInicial.value = estado.saldoInicial;
+            }
+        }
+
+        function salvarDados() {
+            // Converter objetos Date para strings antes de salvar
+            const transacoesParaSalvar = estado.transacoes.map(t => ({
+                ...t,
+                data: dataParaString(t.data)
+            }));
+            
+            const dados = {
+                saldoInicial: estado.saldoInicial,
+                transacoes: transacoesParaSalvar,
+                categorias: estado.categorias
+            };
+            
+            localStorage.setItem('financeiro-widget', JSON.stringify(dados));
+        }
+
+        function adicionarTransacao(transacao) {
+            estado.transacoes.push(transacao);
+            salvarDados();
+            renderizarCalendario();
+            calcularMelhorDia();
+        }
+
+        function removerTransacao(id) {
+            estado.transacoes = estado.transacoes.filter(t => t.id !== id);
+            salvarDados();
+            renderizarCalendario();
+            calcularMelhorDia();
+        }
+
+        function filtrarTransacoes(transacoes) {
+            if (estado.filtroCategoria === 'todas') {
+                return transacoes;
+            }
+            return transacoes.filter(t => t.categoria === estado.filtroCategoria);
+        }
+
+        function adicionarCategoria(nome) {
+            if (!nome || nome.trim() === '') {
+                alert('Por favor, informe um nome para a categoria.');
+                return false;
+            }
+            
+            // Verificar se já existe uma categoria com o mesmo nome
+            const nomeNormalizado = nome.trim().toLowerCase();
+            const categoriaExistente = estado.categorias.find(c => c.nome.toLowerCase() === nomeNormalizado);
+            
+            if (categoriaExistente) {
+                alert('Já existe uma categoria com este nome.');
+                return false;
+            }
+            
+            const novaCategoria = {
+                id: gerarId(),
+                nome: nome.trim()
+            };
+            
+            estado.categorias.push(novaCategoria);
+            salvarDados();
+            renderizarCategorias();
+            atualizarSelectsCategorias();
+            
+            return true;
+        }
+
+        function editarCategoria(id, novoNome) {
+            if (!novoNome || novoNome.trim() === '') {
+                alert('Por favor, informe um nome para a categoria.');
+                return false;
+            }
+            
+            // Verificar se já existe outra categoria com o mesmo nome
+            const nomeNormalizado = novoNome.trim().toLowerCase();
+            const categoriaExistente = estado.categorias.find(c => c.nome.toLowerCase() === nomeNormalizado && c.id !== id);
+            
+            if (categoriaExistente) {
+                alert('Já existe uma categoria com este nome.');
+                return false;
+            }
+            
+            const categoria = estado.categorias.find(c => c.id === id);
+            if (categoria) {
+                categoria.nome = novoNome.trim();
+                salvarDados();
+                renderizarCategorias();
+                atualizarSelectsCategorias();
+                renderizarCalendario(); // Atualizar o calendário para refletir o novo nome da categoria
+                return true;
+            }
+            
+            return false;
+        }
+
+        function removerCategoria(id) {
+            // Verificar se existem transações usando esta categoria
+            const transacoesComCategoria = estado.transacoes.filter(t => t.categoria === id);
+            
+            if (transacoesComCategoria.length > 0) {
+                const confirmar = confirm('Existem transações usando esta categoria. Se continuar, essas transações serão movidas para a categoria "Outros". Deseja continuar?');
+                
+                if (!confirmar) {
+                    return false;
+                }
+                
+                // Mover transações para a categoria "Outros"
+                transacoesComCategoria.forEach(t => {
+                    t.categoria = 'outros';
+                });
+            }
+            
+            estado.categorias = estado.categorias.filter(c => c.id !== id);
+            
+            // Garantir que a categoria "Outros" sempre exista
+            if (!estado.categorias.find(c => c.id === 'outros')) {
+                estado.categorias.push({ id: 'outros', nome: 'Outros' });
+            }
+            
+            salvarDados();
+            renderizarCategorias();
+            atualizarSelectsCategorias();
+            renderizarCalendario(); // Atualizar o calendário para refletir as mudanças
+            
+            return true;
+        }
+
+        function calcularSaldoDia(data) {
+            // Calcular o saldo até o final do dia especificado
+            const dataFimDia = new Date(data);
+            dataFimDia.setHours(23, 59, 59, 999);
+            
+            let saldo = estado.saldoInicial;
+            
+            for (const transacao of estado.transacoes) {
+                if (transacao.data <= dataFimDia) {
+                    if (transacao.tipo === 'entrada') {
+                        saldo += transacao.valor;
+                    } else {
+                        saldo -= transacao.valor;
+                    }
+                }
+            }
+            
+            return saldo;
+        }
+
+        function calcularSaldoFuturo(data) {
+            // Calcular o saldo considerando todas as transações futuras até o final do mês
+            const hoje = new Date();
+            const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+            
+            let saldo = calcularSaldoDia(data);
+            
+            // Considerar apenas transações futuras dentro do mês atual
+            const transacoesFuturas = estado.transacoes.filter(t => 
+                t.data > data && 
+                t.data <= ultimoDiaMes && 
+                t.data.getMonth() === hoje.getMonth() && 
+                t.data.getFullYear() === hoje.getFullYear()
+            );
+            
+            // Subtrair apenas as saídas futuras
+            for (const transacao of transacoesFuturas) {
+                if (transacao.tipo === 'saida') {
+                    saldo -= transacao.valor;
+                }
+            }
+            
+            return saldo;
+        }
+
+        function verificarContasQuitadas(data) {
+            // Verificar se todas as contas até o final do mês estão quitadas ou podem ser quitadas
+            const hoje = new Date();
+            const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+            
+            // Obter todas as saídas (contas) do mês atual, incluindo as já passadas
+            const todasSaidasMes = estado.transacoes.filter(t => 
+                t.tipo === 'saida' && 
+                t.data.getMonth() === hoje.getMonth() && 
+                t.data.getFullYear() === hoje.getFullYear() &&
+                t.data <= ultimoDiaMes
+            );
+            
+            // Obter todas as entradas do mês atual
+            const todasEntradasMes = estado.transacoes.filter(t => 
+                t.tipo === 'entrada' && 
+                t.data.getMonth() === hoje.getMonth() && 
+                t.data.getFullYear() === hoje.getFullYear() &&
+                t.data <= ultimoDiaMes
+            );
+            
+            // Calcular o total de saídas (contas)
+            const totalSaidas = todasSaidasMes.reduce((total, t) => total + t.valor, 0);
+            
+            // Calcular o total de entradas
+            const totalEntradas = todasEntradasMes.reduce((total, t) => total + t.valor, 0);
+            
+            // Saldo inicial + entradas deve ser suficiente para cobrir todas as saídas e ainda sobrar R$ 200
+            const saldoTotal = estado.saldoInicial + totalEntradas;
+            
+            return saldoTotal >= (totalSaidas + 200);
+        }
+
+        function calcularProximidadeSalario(data) {
+            // Calcular a proximidade com entradas de salário
+            // Quanto menor o valor retornado, mais próximo está de uma entrada de salário
+            
+            const hoje = new Date();
+            const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+            
+            // Obter todas as entradas do tipo "salário" no mês atual
+            const entradasSalario = estado.transacoes.filter(t => 
+                t.tipo === 'entrada' && 
+                t.categoria === 'salario' && 
+                t.data.getMonth() === hoje.getMonth() && 
+                t.data.getFullYear() === hoje.getFullYear() &&
+                t.data <= ultimoDiaMes
+            );
+            
+            if (entradasSalario.length === 0) {
+                return Infinity; // Não há entradas de salário no mês
+            }
+            
+            // Calcular a menor distância em dias entre a data e qualquer entrada de salário
+            let menorDistancia = Infinity;
+            
+            for (const entrada of entradasSalario) {
+                // Se a entrada é no futuro, considerar a distância negativa (prioridade mais alta)
+                if (entrada.data >= data) {
+                    const distancia = Math.abs(entrada.data - data) / (1000 * 60 * 60 * 24);
+                    menorDistancia = Math.min(menorDistancia, distancia);
+                }
+            }
+            
+            return menorDistancia;
+        }
+
+        function calcularMelhorDia() {
+            const hoje = new Date();
+            const fimDoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+            let melhorDia = null;
+            let maiorPontuacao = -Infinity;
+            
+            // Verificar se todas as contas do mês podem ser quitadas
+            const contasQuitadas = verificarContasQuitadas(hoje);
+            
+            if (!contasQuitadas) {
+                elementos.melhorDia.textContent = 'Melhor dia para comprar: Não disponível (saldo insuficiente para quitar todas as contas e manter reserva de R$ 200)';
+                return null;
+            }
+            
+            // Verificar cada dia do mês atual a partir de hoje
+            for (let dia = hoje.getDate(); dia <= fimDoMes.getDate(); dia++) {
+                const data = new Date(hoje.getFullYear(), hoje.getMonth(), dia);
+                const saldo = calcularSaldoDia(data);
+                const saldoFuturo = calcularSaldoFuturo(data);
+                const proximidadeSalario = calcularProximidadeSalario(data);
+                
+                // Critérios para determinar o melhor dia:
+                // 1. Deve haver saldo futuro suficiente (> R$ 200) após quitar todas as contas
+                // 2. Priorizar dias com maior saldo disponível
+                // 3. Priorizar dias próximos a recebimentos de salário
+                
+                if (saldoFuturo >= 200) {
+                    // Calcular pontuação baseada em saldo e proximidade do salário
+                    // Normalizar a proximidade do salário para que valores menores (mais próximos) resultem em pontuação maior
+                    const pontuacaoProximidade = proximidadeSalario === Infinity ? 0 : 100 / (1 + proximidadeSalario);
+                    
+                    // Pontuação final: saldo disponível + bônus por proximidade do salário
+                    const pontuacao = saldo + pontuacaoProximidade * 50;
+                    
+                    if (pontuacao > maiorPontuacao) {
+                        maiorPontuacao = pontuacao;
+                        melhorDia = data;
+                    }
+                }
+            }
+            
+            if (melhorDia) {
+                elementos.melhorDia.textContent = `Melhor dia para comprar: ${melhorDia.getDate()} de ${melhorDia.toLocaleDateString('pt-BR', { month: 'long' })}`;
+            } else {
+                elementos.melhorDia.textContent = 'Melhor dia para comprar: Não disponível (nenhum dia com saldo futuro suficiente)';
+            }
+            
+            return melhorDia;
+        }
+
+        // Funções de renderização
+        function renderizarCalendario() {
+            // Limpar dias da semana
+            while (elementos.calendario.children.length > 7) {
+                elementos.calendario.removeChild(elementos.calendario.lastChild);
+            }
+            
+            // Atualizar título do mês
+            elementos.calendarioMes.textContent = obterNomeMes(estado.mesAtual);
+            
+            // Obter informações do mês
+            const primeiroDiaMes = new Date(estado.mesAtual.getFullYear(), estado.mesAtual.getMonth(), 1);
+            const ultimoDiaMes = new Date(estado.mesAtual.getFullYear(), estado.mesAtual.getMonth() + 1, 0);
+            
+            // Calcular dias do mês anterior para preencher a primeira semana
+            const primeiroDiaSemana = primeiroDiaMes.getDay();
+            const diasMesAnterior = [];
+            
+            if (primeiroDiaSemana > 0) {
+                const ultimoDiaMesAnterior = new Date(estado.mesAtual.getFullYear(), estado.mesAtual.getMonth(), 0);
+                for (let i = primeiroDiaSemana - 1; i >= 0; i--) {
+                    const dia = new Date(ultimoDiaMesAnterior);
+                    dia.setDate(ultimoDiaMesAnterior.getDate() - i);
+                    diasMesAnterior.push(dia);
+                }
+            }
+            
+            // Dias do mês atual
+            const diasMesAtual = [];
+            for (let i = 1; i <= ultimoDiaMes.getDate(); i++) {
+                const dia = new Date(estado.mesAtual.getFullYear(), estado.mesAtual.getMonth(), i);
+                diasMesAtual.push(dia);
+            }
+            
+            // Dias do próximo mês para completar a última semana
+            const ultimoDiaSemana = ultimoDiaMes.getDay();
+            const diasProximoMes = [];
+            
+            if (ultimoDiaSemana < 6) {
+                for (let i = 1; i <= 6 - ultimoDiaSemana; i++) {
+                    const dia = new Date(estado.mesAtual.getFullYear(), estado.mesAtual.getMonth() + 1, i);
+                    diasProximoMes.push(dia);
+                }
+            }
+            
+            // Renderizar todos os dias
+            const hoje = new Date();
+            const melhorDia = calcularMelhorDia();
+            
+            // Renderizar dias do mês anterior
+            diasMesAnterior.forEach(dia => {
+                const elementoDia = criarElementoDia(dia, true);
+                elementos.calendario.appendChild(elementoDia);
+            });
+            
+            // Renderizar dias do mês atual
+            diasMesAtual.forEach(dia => {
+                const elementoDia = criarElementoDia(dia, false);
+                
+                // Verificar se é o dia atual
+                if (mesmoDia(dia, hoje)) {
+                    elementoDia.classList.add('dia-atual');
+                }
+                
+                // Verificar se é o melhor dia para comprar
+                if (melhorDia && mesmoDia(dia, melhorDia)) {
+                    elementoDia.classList.add('dia-melhor');
+                }
+                
+                elementos.calendario.appendChild(elementoDia);
+            });
+            
+            // Renderizar dias do próximo mês
+            diasProximoMes.forEach(dia => {
+                const elementoDia = criarElementoDia(dia, true);
+                elementos.calendario.appendChild(elementoDia);
+            });
+        }
+
+        function criarElementoDia(data, outroMes) {
+            const elementoDia = document.createElement('div');
+            elementoDia.className = 'dia';
+            
+            if (outroMes) {
+                elementoDia.classList.add('dia-outro-mes');
+            }
+            
+            // Número do dia
+            const numeroDia = document.createElement('div');
+            numeroDia.className = 'dia-numero';
+            numeroDia.textContent = data.getDate();
+            elementoDia.appendChild(numeroDia);
+            
+            // Adicionar evento de clique apenas para dias do mês atual ou futuro
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            
+            if (!outroMes && data >= hoje) {
+                elementoDia.addEventListener('click', () => abrirModalTransacao(data));
+            }
+            
+            // Calcular e mostrar saldo do dia
+            const saldoDia = calcularSaldoDia(data);
+            const saldoElement = document.createElement('div');
+            saldoElement.className = 'dia-saldo';
+            saldoElement.textContent = formatarMoeda(saldoDia);
+            elementoDia.appendChild(saldoElement);
+            
+            // Listar transações do dia
+            const transacoesDia = filtrarTransacoes(estado.transacoes.filter(t => mesmoDia(t.data, data)));
+            
+            if (transacoesDia.length > 0) {
+                const listaTransacoes = document.createElement('div');
+                listaTransacoes.className = 'transacoes-lista';
+                
+                transacoesDia.forEach(transacao => {
+                    const itemTransacao = document.createElement('div');
+                    itemTransacao.className = 'transacao';
+                    
+                    // Verificar se é uma saída com saldo insuficiente
+                    let classeTransacao = '';
+                    if (transacao.tipo === 'entrada') {
+                        classeTransacao = 'transacao-entrada';
+                    } else {
+                        // Calcular saldo antes desta transação
+                        const dataTransacao = new Date(transacao.data);
+                        dataTransacao.setHours(0, 0, 0, 0);
+                        
+                        let saldoAntes = estado.saldoInicial;
+                        for (const t of estado.transacoes) {
+                            if (t.data < dataTransacao || (mesmoDia(t.data, dataTransacao) && t.id < transacao.id)) {
+                                if (t.tipo === 'entrada') {
+                                    saldoAntes += t.valor;
+                                } else {
+                                    saldoAntes -= t.valor;
+                                }
+                            }
+                        }
+                        
+                        if (saldoAntes < transacao.valor) {
+                            classeTransacao = 'transacao-insuficiente';
+                        } else {
+                            classeTransacao = 'transacao-saida';
+                        }
+                    }
+                    
+                    itemTransacao.classList.add(classeTransacao);
+                    
+                    // Encontrar o nome da categoria
+                    const categoria = estado.categorias.find(c => c.id === transacao.categoria);
+                    const nomeCategoria = categoria ? categoria.nome : transacao.categoria;
+                    
+                    const descricao = document.createElement('span');
+                    descricao.textContent = `${nomeCategoria}: ${formatarMoeda(transacao.valor)}`;
+                    
+                    const btnExcluir = document.createElement('span');
+                    btnExcluir.className = 'transacao-excluir';
+                    btnExcluir.textContent = 'x';
+                    btnExcluir.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        removerTransacao(transacao.id);
+                    });
+                    
+                    itemTransacao.appendChild(descricao);
+                    itemTransacao.appendChild(btnExcluir);
+                    listaTransacoes.appendChild(itemTransacao);
+                });
+                
+                elementoDia.appendChild(listaTransacoes);
+            }
+            
+            return elementoDia;
+        }
+
+        function renderizarCategorias() {
+            // Limpar lista de categorias existente
+            const container = elementos.categoriasLista;
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+            
+            // Adicionar cada categoria à lista
+            estado.categorias.forEach(categoria => {
+                const categoriaItem = document.createElement('div');
+                categoriaItem.className = 'categoria-item';
+                
+                const categoriaNome = document.createElement('div');
+                categoriaNome.className = 'categoria-nome';
+                categoriaNome.textContent = categoria.nome;
+                
+                const categoriaAcoes = document.createElement('div');
+                categoriaAcoes.className = 'categoria-acoes';
+                
+                const btnEditar = document.createElement('span');
+                btnEditar.className = 'categoria-editar';
+                btnEditar.textContent = '✎';
+                btnEditar.addEventListener('click', () => abrirModalEditarCategoria(categoria));
+                
+                const btnExcluir = document.createElement('span');
+                btnExcluir.className = 'categoria-excluir';
+                btnExcluir.textContent = '✕';
+                btnExcluir.addEventListener('click', () => {
+                    if (confirm(`Deseja realmente excluir a categoria "${categoria.nome}"?`)) {
+                        removerCategoria(categoria.id);
+                    }
+                });
+                
+                categoriaAcoes.appendChild(btnEditar);
+                categoriaAcoes.appendChild(btnExcluir);
+                
+                categoriaItem.appendChild(categoriaNome);
+                categoriaItem.appendChild(categoriaAcoes);
+                
+                container.appendChild(categoriaItem);
+            });
+            
+            // Adicionar o formulário para nova categoria
+            const novaCategoria = document.createElement('div');
+            novaCategoria.className = 'nova-categoria';
+            
+            const inputNovaCategoria = document.createElement('input');
+            inputNovaCategoria.type = 'text';
+            inputNovaCategoria.id = 'nova-categoria-nome';
+            inputNovaCategoria.placeholder = 'Nova categoria';
+            
+            const btnAdicionar = document.createElement('button');
+            btnAdicionar.className = 'btn btn-primary';
+            btnAdicionar.id = 'adicionar-categoria';
+            btnAdicionar.textContent = 'Adicionar';
+            btnAdicionar.addEventListener('click', () => {
+                const nome = inputNovaCategoria.value;
+                if (adicionarCategoria(nome)) {
+                    inputNovaCategoria.value = '';
+                }
+            });
+            
+            novaCategoria.appendChild(inputNovaCategoria);
+            novaCategoria.appendChild(btnAdicionar);
+            
+            container.appendChild(novaCategoria);
+            
+            // Atualizar referências aos elementos DOM
+            elementos.novaCategoriaInput = document.getElementById('nova-categoria-nome');
+            elementos.adicionarCategoria = document.getElementById('adicionar-categoria');
+        }
+
+        function atualizarSelectsCategorias() {
+            // Atualizar o select de filtro
+            const filtroSelect = elementos.filtroCategoria;
+            const filtroValorAtual = filtroSelect.value;
+            
+            // Limpar opções existentes
+            while (filtroSelect.options.length > 1) {
+                filtroSelect.remove(1);
+            }
+            
+            // Adicionar categorias como opções
+            estado.categorias.forEach(categoria => {
+                const option = document.createElement('option');
+                option.value = categoria.id;
+                option.textContent = categoria.nome;
+                filtroSelect.appendChild(option);
+            });
+            
+            // Restaurar valor selecionado
+            if (estado.categorias.find(c => c.id === filtroValorAtual)) {
+                filtroSelect.value = filtroValorAtual;
+            } else {
+                filtroSelect.value = 'todas';
+                estado.filtroCategoria = 'todas';
+            }
+            
+            // Atualizar o select de categorias no modal de transação
+            const transacaoSelect = elementos.transacaoCategoria;
+            
+            // Limpar opções existentes
+            while (transacaoSelect.options.length > 0) {
+                transacaoSelect.remove(0);
+            }
+            
+            // Adicionar categorias como opções
+            estado.categorias.forEach(categoria => {
+                const option = document.createElement('option');
+                option.value = categoria.id;
+                option.textContent = categoria.nome;
+                transacaoSelect.appendChild(option);
+            });
+            
+            // Selecionar a primeira opção por padrão
+            if (transacaoSelect.options.length > 0) {
+                transacaoSelect.selectedIndex = 0;
+            }
+        }
+
+        // Funções de interação
+        function abrirModalTransacao(data) {
+            estado.diaSelecionado = data;
+            elementos.transacaoData.value = dataParaString(data);
+            elementos.modal.style.display = 'flex';
+            elementos.transacaoValor.value = '';
+            elementos.transacaoTipo.value = 'entrada';
+            
+            // Selecionar a primeira categoria por padrão
+            if (elementos.transacaoCategoria.options.length > 0) {
+                elementos.transacaoCategoria.selectedIndex = 0;
+            }
+        }
+
+        function fecharModalTransacao() {
+            elementos.modal.style.display = 'none';
+            estado.diaSelecionado = null;
+        }
+
+        function abrirModalEditarCategoria(categoria) {
+            estado.categoriaEditando = categoria;
+            elementos.categoriaId.value = categoria.id;
+            elementos.categoriaNome.value = categoria.nome;
+            elementos.modalCategoria.style.display = 'flex';
+        }
+
+        function fecharModalCategoria() {
+            elementos.modalCategoria.style.display = 'none';
+            estado.categoriaEditando = null;
+        }
+
+        function toggleCategorias() {
+            elementos.categoriasLista.classList.toggle('ativo');
+            elementos.categoriasToggle.textContent = elementos.categoriasLista.classList.contains('ativo') 
+                ? 'Ocultar categorias' 
+                : 'Gerenciar categorias';
+        }
+
+        // Event Listeners
+        function inicializarEventListeners() {
+            // Navegação do calendário
+            elementos.mesAnterior.addEventListener('click', () => {
+                estado.mesAtual.setMonth(estado.mesAtual.getMonth() - 1);
+                renderizarCalendario();
+            });
+            
+            elementos.mesProximo.addEventListener('click', () => {
+                estado.mesAtual.setMonth(estado.mesAtual.getMonth() + 1);
+                renderizarCalendario();
+            });
+            
+            // Saldo inicial
+            elementos.saldoInicial.addEventListener('change', () => {
+                const valor = parseFloat(elementos.saldoInicial.value);
+                if (isNaN(valor) || valor < 0) {
+                    alert('Por favor, informe um valor válido maior ou igual a zero.');
+                    elementos.saldoInicial.value = estado.saldoInicial;
+                    return;
+                }
+                estado.saldoInicial = valor;
+                salvarDados();
+                renderizarCalendario();
+                calcularMelhorDia();
+            });
+            
+            // Filtro de categoria
+            elementos.filtroCategoria.addEventListener('change', () => {
+                estado.filtroCategoria = elementos.filtroCategoria.value;
+                renderizarCalendario();
+            });
+            
+            // Modal de transação
+            elementos.modalClose.addEventListener('click', fecharModalTransacao);
+            elementos.btnCancelar.addEventListener('click', fecharModalTransacao);
+            
+            // Formulário de transação
+            elementos.formTransacao.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const valor = parseFloat(elementos.transacaoValor.value);
+                if (isNaN(valor) || valor <= 0) {
+                    alert('Por favor, informe um valor válido maior que zero.');
+                    return;
+                }
+                
+                const transacao = {
+                    id: Date.now(), // ID único baseado no timestamp
+                    data: estado.diaSelecionado,
+                    tipo: elementos.transacaoTipo.value,
+                    categoria: elementos.transacaoCategoria.value,
+                    valor: valor
+                };
+                
+                adicionarTransacao(transacao);
+                fecharModalTransacao();
+            });
+            
+            // Fechar modal ao clicar fora
+            window.addEventListener('click', (e) => {
+                if (e.target === elementos.modal) {
+                    fecharModalTransacao();
+                }
+                if (e.target === elementos.modalCategoria) {
+                    fecharModalCategoria();
+                }
+            });
+            
+            // Toggle de categorias
+            elementos.categoriasToggle.addEventListener('click', toggleCategorias);
+            
+            // Modal de categoria
+            elementos.categoriaModalClose.addEventListener('click', fecharModalCategoria);
+            elementos.btnCancelarCategoria.addEventListener('click', fecharModalCategoria);
+            
+            // Formulário de categoria
+            elementos.formCategoria.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const id = elementos.categoriaId.value;
+                const nome = elementos.categoriaNome.value;
+                
+                if (editarCategoria(id, nome)) {
+                    fecharModalCategoria();
+                }
+            });
+            
+            // Adicionar nova categoria
+            elementos.novaCategoriaInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const nome = elementos.novaCategoriaInput.value;
+                    if (adicionarCategoria(nome)) {
+                        elementos.novaCategoriaInput.value = '';
+                    }
+                }
+            });
+        }
+
+        // Inicialização
+        function inicializar() {
+            carregarDados();
+            renderizarCategorias();
+            atualizarSelectsCategorias();
+            inicializarEventListeners();
+            renderizarCalendario();
+            calcularMelhorDia();
+        }
+
+        // Iniciar aplicação quando o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', inicializar);
+    </script>
+</body>
+</html>
