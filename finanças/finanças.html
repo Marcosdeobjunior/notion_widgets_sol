@@ -743,6 +743,7 @@
             
             .sidebar, .calendar-container {
                 width: 100%;
+                min-width: unset;
             }
             
             .saldo-container {
@@ -797,6 +798,89 @@
                 font-size: 0.7rem;
                 padding: 1px 4px;
             }
+            
+            .transacoes-lista {
+                max-height: 40px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 1rem;
+            }
+            
+            .categorias-acoes {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+        
+        /* Responsividade para telas muito pequenas */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.1rem;
+            }
+            
+            .calendario {
+                gap: 2px;
+            }
+            
+            .dia {
+                min-height: 50px;
+                padding: 2px;
+            }
+            
+            .dia-numero {
+                font-size: 0.65rem;
+                padding: 1px 3px;
+                top: 2px;
+                right: 2px;
+            }
+            
+            .dia-saldo {
+                font-size: 0.65rem;
+                margin-top: 15px;
+            }
+            
+            .transacoes-lista {
+                font-size: 0.7rem;
+                max-height: 35px;
+            }
+            
+            .transacao {
+                padding: 2px 0;
+            }
+            
+            .calendario-mes {
+                font-size: 1rem;
+            }
+            
+            .calendario-nav button {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            
+            .categorias-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .categorias-acoes {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
             
             .dia-saldo {
                 font-size: 0.65rem;
@@ -1389,6 +1473,7 @@
             let melhorDia = null;
             let maiorPontuacao = -Infinity;
             let valorDisponivel = 0;
+            let valorRecomendado = 0;
             
             // Verificar se todas as contas do mês podem ser quitadas
             const contasQuitadas = verificarContasQuitadas(hoje);
@@ -1423,12 +1508,16 @@
                         melhorDia = data;
                         // Calcular valor disponível para gastar (saldo atual menos contas futuras, com margem de segurança de 200)
                         valorDisponivel = saldoFuturo - 200;
+                        // Calcular valor recomendado para gastar (30% do valor disponível)
+                        valorRecomendado = valorDisponivel * 0.3;
                     }
                 }
             }
             
             if (melhorDia) {
-                elementos.melhorDia.innerHTML = `<i class="fas fa-calendar-day"></i> Melhor dia para comprar: <strong>${melhorDia.getDate()} de ${melhorDia.toLocaleDateString('pt-BR', { month: 'long' })}</strong><br><span class="valor-disponivel">Valor disponível para gastar: <strong>${formatarMoeda(valorDisponivel)}</strong></span>`;
+                elementos.melhorDia.innerHTML = `<i class="fas fa-calendar-day"></i> Melhor dia para comprar: <strong>${melhorDia.getDate()} de ${melhorDia.toLocaleDateString('pt-BR', { month: 'long' })}</strong><br>
+                <span class="valor-disponivel">Valor recomendado para gastar: <strong>${formatarMoeda(valorRecomendado)}</strong></span><br>
+                <span class="valor-disponivel">Valor total disponível: <strong>${formatarMoeda(valorDisponivel)}</strong></span>`;
             } else {
                 elementos.melhorDia.innerHTML = '<i class="fas fa-calendar-day"></i> Melhor dia para comprar: Não disponível (nenhum dia com saldo futuro suficiente)';
             }
