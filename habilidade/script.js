@@ -30,6 +30,12 @@ function getRarityClass(level) {
   return 'EX';
 }
 
+// Função para inverter os valores para o gráfico radar
+// Isso faz com que valores baixos fiquem na borda e altos no centro
+function invertValue(value) {
+  return 10 - value + 1; // Inverte a escala de 1-10 para 10-1
+}
+
 // Inicialização do gráfico
 function initChart() {
   ctx = document.getElementById('skillChart').getContext('2d');
@@ -39,13 +45,16 @@ function initChart() {
     chart.destroy();
   }
   
+  // Inverter os valores para o gráfico radar
+  const invertedValues = skills.map(s => invertValue(s.value));
+  
   chart = new Chart(ctx, {
     type: 'radar',
     data: {
       labels: skills.map(s => s.name),
       datasets: [{
         label: 'Nível',
-        data: skills.map(s => s.value),
+        data: invertedValues, // Usar valores invertidos para o gráfico
         backgroundColor: 'rgba(0, 188, 212, 0.2)',
         borderColor: '#00bcd4',
         pointBackgroundColor: skills.map(s => getRarityColor(s.value)),
@@ -76,7 +85,11 @@ function initChart() {
             beginAtZero: true,
             max: 10,
             stepSize: 1,
-            backdropColor: 'transparent'
+            backdropColor: 'transparent',
+            // Personalizar os rótulos dos ticks para mostrar os valores corretos
+            callback: function(value) {
+              return 11 - value; // Inverte os rótulos para mostrar 1-10 corretamente
+            }
           }
         }
       },
@@ -87,9 +100,11 @@ function initChart() {
         tooltip: {
           callbacks: {
             label: function(context) {
-              const value = context.raw;
-              const rarity = getRarityClass(value);
-              return `Nível: ${value} (${rarity})`;
+              // Recuperar o valor original (não invertido)
+              const index = context.dataIndex;
+              const originalValue = skills[index].value;
+              const rarity = getRarityClass(originalValue);
+              return `Nível: ${originalValue} (${rarity})`;
             }
           }
         }
@@ -239,26 +254,27 @@ function addChartEffects() {
         const meta = chart.getDatasetMeta(i);
         if (!meta.hidden) {
           meta.data.forEach(function(element, index) {
-            const value = dataset.data[index];
+            // Recuperar o valor original (não invertido)
+            const originalValue = skills[index].value;
             
             // Adiciona efeitos baseados no nível
-            if (value >= 7) {
+            if (originalValue >= 7) {
               ctx.save();
               ctx.beginPath();
-              ctx.arc(element._model.x, element._model.y, value >= 10 ? 15 : 10, 0, 2 * Math.PI);
-              ctx.shadowColor = getRarityColor(value);
-              ctx.shadowBlur = value * 2;
+              ctx.arc(element._model.x, element._model.y, originalValue >= 10 ? 15 : 10, 0, 2 * Math.PI);
+              ctx.shadowColor = getRarityColor(originalValue);
+              ctx.shadowBlur = originalValue * 2;
               ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
               ctx.fill();
               ctx.restore();
               
               // Adiciona efeitos especiais para níveis altos
-              if (value >= 9) {
+              if (originalValue >= 9) {
                 // Círculos concêntricos para níveis 9-10
                 ctx.save();
                 ctx.beginPath();
-                ctx.arc(element._model.x, element._model.y, value >= 10 ? 20 : 15, 0, 2 * Math.PI);
-                ctx.strokeStyle = getRarityColor(value);
+                ctx.arc(element._model.x, element._model.y, originalValue >= 10 ? 20 : 15, 0, 2 * Math.PI);
+                ctx.strokeStyle = getRarityColor(originalValue);
                 ctx.lineWidth = 1;
                 ctx.globalAlpha = 0.5;
                 ctx.stroke();
@@ -266,7 +282,7 @@ function addChartEffects() {
               }
               
               // Adiciona emoji de fogo para nível 10
-              if (value === 10) {
+              if (originalValue === 10) {
                 ctx.save();
                 ctx.font = '20px Arial';
                 ctx.fillText('🔥', element._model.x + 10, element._model.y - 10);
@@ -277,7 +293,7 @@ function addChartEffects() {
                 ctx.beginPath();
                 ctx.moveTo(element._model.x, element._model.y);
                 ctx.lineTo(chart.chartArea.width / 2, chart.chartArea.height / 2);
-                ctx.strokeStyle = getRarityColor(value);
+                ctx.strokeStyle = getRarityColor(originalValue);
                 ctx.lineWidth = 2;
                 ctx.globalAlpha = 0.3;
                 ctx.stroke();
