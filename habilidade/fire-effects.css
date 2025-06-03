@@ -1,0 +1,126 @@
+/* Estilos para efeitos de fogo inspirados na imagem de referência */
+@keyframes fireAnimation {
+  0% { box-shadow: 0 0 10px #ff3d00, 0 0 20px #ff3d00; filter: brightness(1); }
+  25% { box-shadow: 0 0 15px #ff5722, 0 0 25px #ff5722; filter: brightness(1.1); }
+  50% { box-shadow: 0 0 20px #ff9800, 0 0 30px #ff9800; filter: brightness(1.2); }
+  75% { box-shadow: 0 0 15px #ff5722, 0 0 25px #ff5722; filter: brightness(1.1); }
+  100% { box-shadow: 0 0 10px #ff3d00, 0 0 20px #ff3d00; filter: brightness(1); }
+}
+
+@keyframes fireGlow {
+  0% { filter: drop-shadow(0 0 8px rgba(255, 61, 0, 0.8)); }
+  50% { filter: drop-shadow(0 0 15px rgba(255, 61, 0, 1)); }
+  100% { filter: drop-shadow(0 0 8px rgba(255, 61, 0, 0.8)); }
+}
+
+/* Efeito de barra de fogo inspirado na imagem */
+.fire-bar {
+  position: relative;
+  background: linear-gradient(90deg, 
+    rgba(255, 0, 0, 0.8) 0%, 
+    rgba(255, 165, 0, 0.9) 50%, 
+    rgba(255, 255, 0, 1) 100%);
+  box-shadow: 0 0 10px #ff3d00, 0 0 20px #ff3d00;
+  animation: fireAnimation 2s infinite;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+/* Efeito de brilho para o gráfico */
+.chart-fire-effect {
+  filter: drop-shadow(0 0 8px rgba(255, 61, 0, 0.8));
+  animation: fireGlow 2s infinite alternate;
+}
+
+/* Efeito de partículas de fogo */
+.fire-particle {
+  position: absolute;
+  background-color: rgba(255, 165, 0, 0.8);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: 0 0 5px rgba(255, 61, 0, 0.8);
+}
+
+/* Estilo para o ponto de nível 10 no gráfico */
+.max-level-point {
+  position: relative;
+}
+
+.max-level-point::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 0, 0.8) 0%,
+    rgba(255, 165, 0, 0.6) 40%,
+    rgba(255, 0, 0, 0.4) 60%,
+    transparent 80%
+  );
+  border-radius: 50%;
+  z-index: -1;
+  animation: fireAnimation 2s infinite;
+}
+
+/* Estilo para o texto de nível máximo */
+.max-level-text {
+  color: #ff3d00;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(255, 165, 0, 0.8);
+  animation: fireAnimation 2s infinite;
+}
+
+/* Efeito de borda brilhante para itens de nível 10 */
+.skill-level-max {
+  border: 1px solid rgba(255, 165, 0, 0.8);
+  background: linear-gradient(to right, 
+    #2a2a2a, 
+    #2a2a2a 30%, 
+    rgba(255, 61, 0, 0.4) 100%);
+  animation: fireAnimation 2s infinite;
+}
+
+/* Efeito de fogo mais realista para o emoji */
+.fire-effect::after {
+  content: "🔥";
+  position: absolute;
+  top: -15px;
+  right: -10px;
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 5px rgba(255, 165, 0, 0.8));
+  animation: flicker 0.8s infinite alternate;
+}
+
+/* Efeito de brilho para o indicador de raridade EX */
+.rarity-EX {
+  background-color: #ff3d00;
+  color: white;
+  box-shadow: 0 0 10px #ff3d00, 0 0 20px #ff3d00;
+  animation: fireAnimation 2s infinite;
+}
+
+/* Estilo para o contêiner do gráfico com efeito de borda azul como na imagem */
+.chart-container {
+  border: 2px solid #0288d1;
+  border-radius: 10px;
+  background-color: rgba(2, 136, 209, 0.1);
+  box-shadow: 0 0 10px rgba(2, 136, 209, 0.5);
+}
+
+/* Estilo para o título inspirado na imagem */
+.chart-title {
+  color: #0288d1;
+  text-shadow: 0 0 5px rgba(2, 136, 209, 0.5);
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* Efeito de brilho para o canvas */
+canvas.fire-effect-canvas {
+  filter: drop-shadow(0 0 5px rgba(255, 61, 0, 0.5));
+}
