@@ -1,99 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
 <head>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 
-	<!-- Font Awesome -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700&display=swap" rel="stylesheet">
 
-	<!-- Google Font -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700&display=swap" rel="stylesheet">
+        .navMenu {
+            font-family: 'Poppins', sans-serif;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            background-color: #f3eec3;
+            border: 1px solid #849D7F;
+            width: 100%;
+        }
 
-	<!-------->
+        .navMenu .left a,
+        .navMenu .right a {
+            color: #272727;
+            text-decoration: none;
+            text-transform: uppercase;
+            padding: 6px 10px;
+            display: inline-block;
+        }
 
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			-webkit-box-sizing: border-box;
-			box-sizing: border-box;
-		}
+        .navMenu a:hover {
+            color: #849D7F;
+        }
 
+        .navMenu .right {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
 
-		.navMenu {
-			font-family: 'Poppins', sans-serif;
-			padding: 8px;
-			text-align: center;
-			margin: 7px auto;
-			width: fit-content;
-		}
+        /* Responsividade: empilhar os botões em telas pequenas */
+        @media (max-width: 600px) {
+            .navMenu {
+                flex-direction: column;
+                align-items: flex-start;
+            }
 
-		.navMenu a {
-			color: #272727;
-			text-decoration: none;
-			text-transform: uppercase;
-			display: inline-block;
-			padding: 6px;
-		}
+            .navMenu .right {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+            }
 
-		.background {
-			background-color: #f3eec3;
-		}
-
-		.border {
-			border: 1px solid #849D7F;
-
-		}
-
-		.navMenu a:hover {
-
-			color: #849D7F;
-		}
-	</style>
+            .navMenu .left,
+            .navMenu .right a {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-	<nav class="navMenu  border background">
-		<a id="home" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-house"></i> Home</a>
-		<a id="tarefas" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-list-check"></i> Tarefas</a>
-		<a id="biblioteca" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-bookmark"></i> Biblioteca</a>
-		<a id="pessoal" onclick="navigate(this.id)" href="#"> <i class="fa-regular fa-user"></i> Pessoal</a>
-		<a id="livro" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-book"></i> Livro</a>
-		<a id="database" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-server"></i> DataBase</a>
-	</nav>
+    <nav class="navMenu">
+        <div class="left">
+            <a id="home" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-house"></i> Home</a>
+        </div>
+        <div class="right">
+            <a id="tarefas" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-list-check"></i> Tarefas</a>
+            <a id="biblioteca" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-bookmark"></i> Biblioteca</a>
+            <a id="pessoal" onclick="navigate(this.id)" href="#"> <i class="fa-regular fa-user"></i> Pessoal</a>
+            <a id="livro" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-book"></i> Livro</a>
+            <a id="database" onclick="navigate(this.id)" href="#"> <i class="fa-solid fa-server"></i> DataBase</a>
+        </div>
+    </nav>
 
+    <script>
+        function navigate(id) {
+            const links = {
+                home: "https://www.notion.so/Sol-de-S-ter-1ddaf0392b1680f7b4bac7ebe0beac5d?pvs=4",
+                tarefas: "https://www.notion.so/Tarefas-1e7af0392b1680abbae1d383c60535aa?pvs=4",
+                pessoal: "https://www.notion.so/Pessoal-1e7af0392b168031a3e1f83624064618?pvs=4",
+                database: "https://www.notion.so/DataBase-1e7af0392b1680d0b6c3c382a4ef219b?pvs=4",
+                biblioteca: "https://www.notion.so/Biblioteca-1e8af0392b16804eb4b4ed961f076ab7?pvs=4",
+                livro: "https://www.notion.so/Livro-1e8af0392b1680358974c5f5a25217e2?pvs=4"
+            };
 
-	<script>
-
-		let direction = "horizontal";
-		if (direction === "vertical") {
-			document.head.insertAdjacentHTML("beforeend", `<style>.navMenu a {display: block; text-align:left; margin:7px} i{width:15px; margin-right:5px} .navMenu{margin:3px}</style>`)
-		}
-
-
-		function navigate(id) {
-
-			if (id == 'home')
-				window.open("https://www.notion.so/Sol-de-S-ter-1ddaf0392b1680f7b4bac7ebe0beac5d?pvs=4", '_blank').focus();
-			else if (id == 'tarefas')
-				window.open("https://www.notion.so/Tarefas-1e7af0392b1680abbae1d383c60535aa?pvs=4", '_blank').focus();
-			else if (id == 'pessoal')
-				window.open("https://www.notion.so/Pessoal-1e7af0392b168031a3e1f83624064618?pvs=4", '_blank').focus();
-			else if (id == 'database')
-				window.open("https://www.notion.so/DataBase-1e7af0392b1680d0b6c3c382a4ef219b?pvs=4", '_blank').focus();
-			else if (id == 'biblioteca')
-				window.open("https://www.notion.so/Biblioteca-1e8af0392b16804eb4b4ed961f076ab7?pvs=4", '_blank').focus();
-			else if (id == 'livro')
-				window.open("https://www.notion.so/Livro-1e8af0392b1680358974c5f5a25217e2?pvs=4", '_blank').focus();
-
-			
-		}
-	</script>
-
+            if (links[id]) {
+                window.open(links[id], '_blank').focus();
+            }
+        }
+    </script>
 
 </body>
 
